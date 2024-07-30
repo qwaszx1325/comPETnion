@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>回覆領養通知</title>
+    <style>
+        body {
+			font-family: Arial, sans-serif;
+			background-color: #ffffff;
+			margin: 0;
+			padding: 0;
+		}
+
+		.container-mail {
+			width: 100%;
+			max-width: 600px;
+			margin: 0 auto;
+			background-color: #f8efea;
+			padding: 20px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		}
+
+		.content {
+			margin: 20px 0;
+		}
+
+		.content h1 {
+			color: #333333;
+		}
+
+		.content p {
+			line-height: 1.6;
+			color: #666666;
+		}
+		
+		.highlight {
+            color: #a0522d;
+        }
+
+		.footer {
+			padding: 20px 0;
+			color: #999999;
+			font-size: 12px;
+		}
+    </style>
+</head>
+
+<body>
+    <div class="container-mail">
+        <img src="https://i.imgur.com/M34EE1U.png" alt="Company Logo" style="text-align:center">
+
+        <div class="content">
+            <h1>親愛的comPETnion會員</h1>
+            <p>您申請的寵物領養案件（案件編號<span class="highlight" th:text="${petCaseId}"></span>）已收到回覆。</p>
+            <p>請登入系統查看詳情並進行後續操作。</p>
+        </div>
+        <div class="footer">
+            <h4>感謝您使用 comPETnion，我們致力於幫助更多動物找到溫暖的家。</h4>
+            <p>這是一封自動產生的郵件，請勿回覆。</p>
+            <p>© 2024 comPETnion .All rights reserved.</p>
+        </div>
+    </div>
+</body>
+
+</html>

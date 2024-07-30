@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>comPETnion</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+    <link th:href="@{/dashboard/css/styles.css}" rel="stylesheet" />
+    <style>
+        td img {
+            width: 50px;
+        }
+
+        body {
+            background-color: white;
+            font-family: "Chilanka", 'Taipei Sans TC', 'Taipei Sans TW', sans-serif;
+            font-optical-sizing: auto;
+            font-weight: weight;
+            font-style: normal;
+        }
+
+        .event-content {
+            width: 300px;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        th {
+            background-color: RGB(82, 40, 26);
+            color: RGB(241, 237, 233);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        th:hover {
+            background-color: RGB(223, 207, 185);
+            color: RGB(82, 40, 26);
+        }
+
+        tbody tr:hover {
+            background-color: #876d5a;
+            color: RGB(82, 40, 26);
+        }
+
+        .order-actions button {
+            padding: 10px 20px;
+            font-size: 14px;
+            color: #fff;
+            background-color: #876d5a;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            line-height: 1;
+            vertical-align: middle;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .order-actions button:hover {
+            background-color: #b4885b;
+        }
+
+        .order-actions form button {
+            background-color: #a5c4d4;
+        }
+
+        .order-actions form button:hover {
+            background-color: #86a3b8;
+        }
+
+        .order-actions {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2 {
+            margin-top: 30px;
+        }
+
+        .detail-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            font-size: 14px;
+            color: #fff;
+            background-color: RGB(82, 40, 26);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .detail-button:hover {
+            background-color: RGB(223, 207, 185);
+        }
+
+        .detail-button i {
+            margin-right: 5px;
+        }
+
+        td {
+            vertical-align: middle;
+            text-align: center !important;
+        }
+
+        th {
+            vertical-align: middle;
+            text-align: center !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="layoutSidenav">
+        <div th:replace="~{layout/dashboard}"></div>
+        <div id="layoutSidenav_content">
+            <main>
+                <div class="container">
+                    <br>
+                    <h2>訂單處理</h2>
+                    <table id="ordersTable" class="display">
+                        <thead>
+                            <tr>
+                                <th>訂單編號</th>
+                                <th>訂單時間</th>
+                                <th>總金額</th>
+                                <th>訂單狀態</th>
+                                <th>操作</th>
+                                <th>訂單詳情</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="order : ${allOrders}">
+                                <td th:text="${order.orderId}"></td>
+                                <td th:text="${#dates.format(order.createTime, 'yyyy年MM月dd日 HH:mm:ss EEEE')}"></td>
+                                <td th:text="${order.totalCost + '元'}"></td>
+                                <td>
+                                    <form th:id="'form-' + ${order.orderId}" th:action="@{/admin/dashboard/updateOrderStatus}" method="post" class="update-order-form">
+                                        <input type="hidden" name="orderId" th:value="${order.orderId}" />
+                                        <select name="orderStatusId" th:attr="data-status=${order.orderStatusId}">
+                                            <option th:selected="${order.orderStatusId == 1}" value="1">待付款</option>
+                                            <option th:selected="${order.orderStatusId == 2}" value="2">已付款</option>
+                                            <option th:selected="${order.orderStatusId == 3}" value="3">已完成</option>
+                                            <option th:selected="${order.orderStatusId == 4}" value="4">已取消</option>
+                                        </select>
+                                </td>
+                                <td class="order-actions">
+                                    <div th:if="${order.orderStatusId == 1 || order.orderStatusId == 2}">
+                                        <button type="button" th:attr="data-form-id='form-' + ${order.orderId}" class="modify-button">修改</button>
+                                    </div>
+									<div th:if="${order.orderStatusId != 1 && order.orderStatusId != 2}">
+									                                        <button type="button">不可修改</button>
+									                                    </div>
+                                </td>
+                                    </form>
+                                <td>
+                                    <a th:href="@{/admin/dashboard/orderDetail(orderId=${order.orderId})}" class="detail-button">
+                                        <i class="fas fa-info-circle"></i> 查看詳情
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(window).on('load', function () {
+            $('#ordersTable').DataTable();
+        });
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelectorAll('select[name="orderStatusId"]').forEach(select => {
+                if (select.getAttribute('data-status') == '3' || select.getAttribute('data-status') == '4') {
+                    select.disabled = true;
+                }
+            });
+
+            document.querySelectorAll('.modify-button').forEach(button => {
+                button.addEventListener('click', function () {
+                    const formId = this.getAttribute('data-form-id');
+                    Swal.fire({
+                        title: '確定修改訂單狀態?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: '是的, 修改!',
+                        cancelButtonText: '取消'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            document.getElementById(formId).submit();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

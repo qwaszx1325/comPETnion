@@ -1,0 +1,46 @@
+@charset "UTF-8";
+
+.sticky-navbar {
+	position: sticky;
+	top: 0;
+	z-index: 1000;
+	background-color: rgba(255, 255, 255, 0.9);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	width: 100%;
+}
+
+.sticky-navbar.sticky {
+	position: fixed;
+	top: 0;
+	width: 100%;
+}
+
+/* 調整navbar元素樣式 */
+.main-menu {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.navbar-nav {
+	display: flex;
+	align-items: center;
+}
+
+.nav-item {
+	margin-right: 20px;
+}
+
+.user-icons {
+	display: flex;
+	align-items: center;
+}
+
+.user-icons a {
+	margin-left: 15px;
+}
+
+.text-decoration-none {
+	cursor: pointer;
+	text-decoration: none;
+}

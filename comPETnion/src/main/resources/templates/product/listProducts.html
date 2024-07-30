@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Index Product List</title>
+<style>
+    /* Modal (background) */
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        padding-top: 100px; /* Location of the box */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+    /* Modal Content */
+    .modal-content {
+        background-color: #fefefe;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+    }
+
+    /* Close Button */
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+    <h1>商品列表</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>商品編號</th>
+                <th>商品名稱</th>
+                <th>商品描述</th>
+                <th>商品價格</th>
+                <th>商品狀態</th>
+                <th>商品類別</th>
+                <th>商品庫存</th>
+                <th>上架日期</th>
+                <th>更新日期</th>
+                <th>已售數量</th>
+                <th>主圖</th>
+                <th>副圖1</th>
+                <th>副圖2</th>
+                <th>副圖3</th>
+                <th>副圖4</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="product : ${products}">
+                <td th:text="${product.productID}"></td>
+                <td th:text="${product.productTitle}"></td>
+                <td th:text="${product.productDesc}"></td>
+                <td th:text="${product.productPrice}"></td>
+                <td th:text="${product.productCondition == 1 ? '上架' : '下架'}"></td>
+                <td th:text="${productTypeMap[product.productType]}"></td>
+                <td th:text="${product.productStock}"></td>
+                <td th:text="${#dates.format(product.productLaunchDate, 'yyyy-MM-dd')}"></td>
+                <td th:text="${#dates.format(product.productAddDate, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                <td th:text="${product.productSold}"></td>
+                <td><a href="#" onclick="showImage('/admin/product/image/${product.productID}/main')">查看</a></td>
+                <td><a href="#" onclick="showImage('/admin/product/image/${product.productID}/image1')">查看</a></td>
+                <td><a href="#" onclick="showImage('/admin/product/image/${product.productID}/image2')">查看</a></td>
+                <td><a href="#" onclick="showImage('/admin/product/image/${product.productID}/image3')">查看</a></td>
+                <td><a href="#" onclick="showImage('/admin/product/image/${product.productID}/image4')">查看</a></td>
+                <td>
+                    <a th:href="@{|/admin/product/delete/${product.productID}|}">刪除</a>
+                    <a th:href="@{|/admin/product/update/${product.productID}|}">修改</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img id="modalImage" src="" alt="圖片" style="width: 100%;">
+        </div>
+    </div>
+
+    <script>
+        // Get the modal
+        var modal = document.getElementById("myModal");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Function to show the image in the modal
+        function showImage(src) {
+            var modalImage = document.getElementById("modalImage");
+            modalImage.src = src;
+            modal.style.display = "block";
+        }
+    </script>
+</body>
+</html>

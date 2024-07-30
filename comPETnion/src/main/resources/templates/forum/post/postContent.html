@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>文章內容</title>
+    <meta charset="utf-8">
+
+
+    <style>
+        .message-content {
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-content p {
+            margin: 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .container {
+            position: relative;
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .edit-btn {
+            display: flex;
+            gap: 10px;
+        }
+
+        .edit-btn form {
+            margin: 0;
+        }
+
+        .shadow-card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 1);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .twchar {
+            font-family: "Chilanka", 'Taipei Sans TC', 'Taipei Sans TW', sans-serif;
+            font-optical-sizing: auto;
+            font-weight: weight;
+            font-style: normal;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{layout/header}"></div>
+
+    <section class="py-5">
+        <div class="container">
+            <div th:replace="~{layout/navbarForum}"></div>
+            <div class="mt-5 shadow-card bg-white">
+                <div class="post-header">
+                    <h1 class="page-title twchar">文章名稱:<a></a></h1>
+                    <div class="edit-btn" th:if="${session.member != null && post.memberId == session.member.memberId}">
+                        <a th:href="@{/member/findIdByPost(id=${post.postId})}"
+                            class="btn btn-outline-success btn-sm">編輯</a>
+                        <form method="post" th:action="@{/member/postDeleteState}">
+                            <input type="hidden" name="postId" th:value="${post.postId}" />
+                            <input type="submit" value="刪除" onclick="return confirm('確定刪除嗎?')"
+                                class="btn btn-outline-danger btn-sm" />
+                        </form>
+                    </div>
+                </div>
+                <h3 th:text="${post.postName}" class="twchar">文章名稱</h3>
+                <div class="post-meta">
+                    <div>發佈日期:<a th:text="${post != null ? #dates.format(post.postDate, 'yyyy年MM月dd日') : ''}"></a></div>
+                </div>
+                <div>
+                    <span th:text="${post.postViews}"></span> <a>觀看人數</a>
+                </div>
+                <hr>
+                <p th:utext="${post.postContent}">文章內容</p>
+                <hr>
+<div class="d-flex justify-content-between align-items-center">
+    <h1 class="twchar">留言</h1>
+  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reportModal" 
+        th:data-post-id="${post.postId}" th:data-post-name="${post.postName}">
+  檢舉
+</button>
+</div>        
+
+
+<!-- Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="reportModalLabel">檢舉文章</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form th:action="@{/member/report/insert}" method="post">
+        <div class="modal-body">
+          <input type="hidden" name="postId" id="postId" th:value="${postId}">
+          <input type="hidden" name="postName" id="postName" th:value="${postName}">
+          <div class="mb-3">
+            <label for="reportContent" class="form-label">檢舉原因</label>
+            <textarea class="form-control" id="reportContent" name="reportContent" rows="3" required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="submit" class="btn btn-primary">提交檢舉</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+                
+                
+                
+                
+                
+                
+                
+                <div class="card">
+                    <div class="card-header twchar">新訊息</div>
+                    <div class="card-body twchar">
+                        <h5 class="card-title twchar">請輸入新訊息</h5>
+                        <form th:action="@{/member/addPost}" method="post">
+                            <textarea class="form-control" name="messageContent" required></textarea>
+                            <input type="hidden" name="postId" th:value="${postId}" />
+                            <input type="hidden" name="postName" th:value="${postName}" />
+                            <br>
+                            <input type="submit" class="btn btn-primary" value="送出">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container shadow-card twchar">
+        <br>
+        <div class="card twchar">
+            <div class="card-header twchar">
+               <button class="btn btn-link twchar" type="button" data-bs-toggle="collapse"
+        data-bs-target="#collapseMessages" aria-expanded="false" aria-controls="collapseMessages">
+    <h1>顯示留言</h1>
+</button>
+            </div>
+            <div id="collapseMessages" class="collapse">
+                <div class="card-body twchar">
+                    <ul class="list-group">
+                        <li class="list-group-item twchar" th:each="msg : ${messages}">
+                   <h4 class="twchar">會員:</h4>
+<span th:text="${msg.memberName}" class="twchar">會員名稱</span>
+
+
+                            <p class="twchar" th:text="${#dates.format(msg.messageDate, 'yyyy年MM月dd日 HH:mm:ss')}">留言時間
+                            </p>
+                            <hr>
+                            
+                            <!-- 編輯表單(顯示) -->
+                            <div th:id="'editContent-'+${msg.messagesId}">
+                                <div class="message-content " id="">
+                                    <p class="twchar" th:text="${msg.messageContent}">留言內容</p>
+                                </div>
+                                <div class="edit-btn"
+                                    th:if="${session.member != null && msg.memberId == session.member.memberId}">
+                                   
+                                   
+                                    <button class="btn btn-outline-success btn-sm"
+                                        th:onclick="'showEditForm(' + ${msg.messagesId} + ')'">編輯</button>
+                                        
+                                    <form method="post" th:action="@{/member/updateMessageDeleteState}">
+                                        <input name="messagesId" th:value="${msg.messagesId}" type="hidden" />
+                                          <input name="postId" th:value="${post.postId}" type="hidden" />
+                                        <input type="submit" value="刪除" onclick="return confirm('確定刪除嗎?')"
+                                            class="btn btn-outline-danger btn-sm">
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            
+                            <!-- 編輯表單(隱藏) -->
+                            <form th:id="'editForm-'+${msg.messagesId}" method="post" th:action="@{/member/editMessage}"
+                                style="display: none;">
+                                <textarea class="form-control" name="messageContent" required
+                                    th:text="${msg.messageContent}"></textarea>
+                                <input type="hidden" name="messagesId" th:value="${msg.messagesId}" />
+                                <input name="postId" th:value="${post.postId}" type="hidden" />
+                                <button type="submit" class="btn btn-primary mt-2">儲存變更</button>
+                               
+                            </form>
+
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div th:replace="~{layout/footer}"></div>
+    </div>
+
+    <script src="js/jquery-1.11.0.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/Swiper/9.4.1/swiper-bundle.min.js"></script>
+    <script src="js/plugins.js"></script>
+    <script src="js/script.js"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+
+    <script>
+    
+    
+        function showEditForm(messageId) {
+            $('#editForm-' + messageId).show();
+            $('#editContent-' + messageId).hide();
+        }
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  var reportModal = document.getElementById('reportModal');
+  reportModal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    var postId = button.getAttribute('data-post-id');
+    var postName = button.getAttribute('data-post-name');
+    
+    var modalPostId = reportModal.querySelector('#postId');
+    var modalPostName = reportModal.querySelector('#postName');
+    
+    modalPostId.value = postId;
+    modalPostName.value = postName;
+  });
+});
+
+       
+    </script>
+</body>
+
+</html>

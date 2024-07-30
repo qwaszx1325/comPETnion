@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Offcanvas Menu Example</title>
+  <style>
+    .offcanvas {
+      width: 250px;
+      background-color: #f8f9fa;
+      border-right: 1px solid #eee;
+      height: 100%;
+      position: fixed;
+      z-index: 1030;
+      top: 0;
+      left: -250px;
+      transition: left 0.3s ease;
+    }
+
+    .offcanvas.show {
+      left: 0;
+    }
+
+    .offcanvas-header {
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .offcanvas-body {
+      padding: 1rem;
+    }
+
+    .offcanvas-body a {
+      display: block;
+      padding: 0.5rem 0;
+      color: #333;
+      text-decoration: none;
+    }
+
+    .offcanvas-body a:hover {
+      background-color: #eee;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="offcanvas" id="offcanvasMenu">
+    <div class="offcanvas-header">
+      <h5>討論區</h5>
+    </div>
+    <div class="offcanvas-body">
+      <a class="nav-link active" aria-current="page" th:href="@{/messages/add}">新增訊息</a>
+      <a class="nav-link" th:href="@{/messages/page}">列出訊息</a>
+      <a class="nav-link" th:href="@{/post/insertPost}">新增文章</a>
+      <a class="nav-link" th:href="@{/findAllPost}">顯示文章</a>
+      <a class="nav-link" th:href="@{/post/page}">列出文章</a>
+      <a class="nav-link" th:href="@{/findAllTheme2}">主題</a>
+      <a class="nav-link" th:href="@{/forum/insertTheme2}">新增主題2</a>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('mousemove', function (event) {
+      var offcanvas = document.getElementById("offcanvasMenu");
+      if (event.clientX <= 10) {
+        offcanvas.classList.add("show");
+      } else if (event.clientX > 260) {
+        offcanvas.classList.remove("show");
+      }
+    });
+  </script>
+
+</body>
+
+</html>

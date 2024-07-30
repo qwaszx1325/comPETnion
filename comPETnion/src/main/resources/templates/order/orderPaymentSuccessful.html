@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支付成功 - 訂單詳細信息</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        @font-face {
+            font-family: TaiwanPearl-Regular;
+            src: url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff2) format("woff2"),
+                url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff) format("woff");
+        }
+
+        .twchar {
+            font-family: "Chilanka", "TaiwanPearl-Regular", 'Taipei Sans TC', 'Taipei Sans TW';
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
+        }
+
+		#ordersContainer {
+		            width: 45%;
+		            margin: 0 auto;
+		            padding: 20px;
+		            background-color: #f9f9f9;
+		            border-radius: 10px;
+		            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+		        }
+
+        .payment-success {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: green;
+        }
+
+        .order-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #dddddd;
+            padding: 10px 0;
+            text-align: left;
+        }
+
+        .order-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+        }
+
+        .order-item-details {
+            flex: 2;
+            padding: 0 20px;
+            text-align: left;
+        }
+
+        .order-item-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .order-item-quantity,
+        .order-item-total {
+            text-align: right;
+        }
+
+        .order-item-quantity p,
+        .order-item-total p {
+            margin: 0;
+        }
+
+        .total-price {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .order-management {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .order-management ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .order-management ul li {
+            margin: 0 15px;
+        }
+
+        .order-management ul li a {
+            text-decoration: none;
+            color: #6c757d;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 5px 10px;
+        }
+
+        .order-management ul li a:hover {
+            color: #343a40;
+        }
+
+        .info-section {
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        .info-section p {
+            font-size: 16px;
+            margin: 5px 0;
+        }
+
+        .info-section span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{layout/header}"></div>
+	<div th:replace="~{layout/memberSidebar}"></div>
+	
+    <div class="order-management twchar">
+    </div>
+
+    <main id="main-content" style="padding-top: 20px;">
+        <div id="ordersContainer" class="twchar">
+            <div class="order-container">
+                <div class="payment-success twchar">支付成功</div>
+                <h2 class="twchar">訂單詳細信息</h2>
+                <div class="info-section recipient-info twchar" th:if="${order.recipientName}">
+                    <p>收件人姓名: <span th:text="${order.recipientName}"></span></p>
+                    <p>電話: <span th:text="${order.phone}"></span></p>
+                    <p>地址: <span th:text="${order.address}"></span></p>
+                    <p>電子郵件: <span th:text="${order.email}"></span></p>
+                    <p>預計到貨日期: <span th:text="${#temporals.format(order.estimatedArrivalDate, 'yyyy-MM-dd')}"></span></p>
+                    <p>運費: <span th:text="${order.shippingCost}"></span></p>
+                    <p>訂單總價: <span th:text="${order.totalCost}"></span></p>
+                </div>
+                <div th:each="item : ${orderDetail}" class="order-item">
+                    <img th:src="@{'/product/images?productId=' + ${item.productId} + '&type=main'}" alt="商品圖片">
+                    <div class="order-item-details">
+                        <h3 th:text="${item.productTitle}" class="twchar">商品標題</h3>
+                    </div>
+                    <div class="order-item-info">
+                        <div class="order-item-quantity">
+                            <p th:text="'數量: ' + ${item.quantity}" class="twchar">數量:</p>
+                        </div>
+                        <div class="order-item-total">
+                            <p th:text="'總價: ' + ${item.cost} + '元'" class="item-cost twchar">總價:</p>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{layout/footer}"></div>
+
+    <script th:inline="javascript">
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/">
+
+<head>
+	<title>管理員登入頁面</title>
+
+</head>
+
+<style>
+	.twchar {
+		font-family: "Chilanka", "TaiwanPearl-Regular", 'Taipei Sans TC',
+			'Taipei Sans TW';
+		font-optical-sizing: auto;
+		font-weight: 400;
+		font-style: normal;
+	}
+
+	.swal2-popup,
+	.swal2-title {
+		font-family: "Chilanka" !important;
+	}
+
+	@font-face {
+		font-family: TaiwanPearl-Regular;
+		src:
+			url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff2) format("woff2"),
+			url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff) format("woff");
+	}
+</style>
+
+</head>
+
+<body>
+	<div th:replace="~{layout/header}"></div>
+	<section id="banner" class="py-3" style="background: #F9F3EC;">
+		<div class="container">
+			<div class="hero-content py-5 my-3">
+				<h2 class="display-1 mt-3 mb-0">Admin</h2>	
+			</div>
+		</div>
+	</section>
+
+	<section class="login-tabs padding-large">
+		<div class="container my-5 py-5">
+			<div class="row">
+				<div class="tabs-listing">
+					<nav>
+						<div class="nav nav-tabs d-flex justify-content-center border-dark-subtle mb-3" id="nav-tab" role="tablist">
+							<button class="nav-link mx-3 fs-3 border-bottom border-dark-subtle border-0 text-uppercase active twchar"
+								id="nav-sign-in-tab" data-bs-toggle="tab" data-bs-target="#nav-sign-in" type="button" role="tab"
+								aria-controls="nav-sign-in" aria-selected="true">登入</button>
+
+						</div>
+					</nav>
+					<div class="tab-content" id="nav-tabContent">
+						<div class="tab-pane fade active show" id="nav-sign-in" role="tabpanel" aria-labelledby="nav-sign-in-tab">
+							<div class="col-lg-8 offset-lg-2 mt-5">
+
+								
+								<p class="mb-0 twchar">用帳號登入</p>
+								<hr class="my-1">
+
+								<form th:action="@{/public/adminlogin}" method="post" id="form2" class="form-group flex-wrap ">
+									<div class="form-input col-lg-12 my-4">
+
+										<input type="email" id="exampleInputEmail1" name="adminEmail" required placeholder="請輸入電子信箱"
+											class="form-control mb-3 p-4 twchar">
+
+										<input type="password" id="inputPassword1" placeholder="請輸入密碼" class="form-control mb-3 p-4 twchar"
+											aria-describedby="passwordHelpBlock" name="adminPassword" required> <label
+											class="py-3 d-flex flex-wrap justify-content-between twchar">
+
+										
+										</label>
+										<div class="d-grid my-3">
+											<button type="submit" class="btn btn-primary twchar">提交</button>
+										</div>
+									</div>
+
+								</form>
+								<button id="adminClick" class="btn btn-primary twchar">管理員登入</button>
+								
+							</div>
+
+						</div>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<div th:if="${alertLogin=='failure'}">
+		<input type="hidden" class="failure">
+	</div>
+
+
+
+	<div th:replace="~{layout/footer}"></div>
+
+
+	
+
+	<script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0-alpha3/js/bootstrap.bundle.min.js"
+		integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+		crossorigin="anonymous"></script>
+
+	<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+
+
+	<script>
+		
+		let login = document.querySelectorAll('.failure');
+		if (login.length > 0) {
+			Swal.fire({
+				title: '失敗',
+				text: '登入失敗，請檢查您的電子信箱和密碼。',
+				icon: 'error',
+				confirmButtonText: '確定'
+			});
+		}
+
+		$(document).ready(function () {
+			$("#adminClick").click(function () {
+				$("#exampleInputEmail1").val("admin@gmail.com");
+				$("#inputPassword1").val("Aa123456");
+			});
+		});
+
+
+
+	</script>
+
+
+</body>
+
+</html>
