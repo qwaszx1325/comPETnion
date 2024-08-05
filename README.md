@@ -21,5 +21,4 @@
 ![image](https://github.com/user-attachments/assets/ad2fe7c3-1485-4e45-a6f1-50c7296d404a)
 websocket會員與管理員的聊天室,聊天資料有存在資料庫,假如管理員在與不同的對象聊天會顯示紅色警示燈
 ![image](https://github.com/user-attachments/assets/ea7f2db2-c463-4e69-b924-a1cf7c64571e)
-
-最後有用log4j2紀錄會員信箱登錄紀錄
+最後有用log4j2紀錄會員信箱登錄紀錄,並輸出成log檔案
