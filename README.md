@@ -17,4 +17,9 @@
 ![image](https://github.com/user-attachments/assets/a143c57c-e070-4c59-820b-dec632ef3afd)
 ![image](https://github.com/user-attachments/assets/4ee0ee57-6dcf-44db-866d-335abfca3f64)
 選擇評價可以到評價頁面,訂單已完成後才已訂單明細進行評價
+![image](https://github.com/user-attachments/assets/e36e61e5-6c42-41a7-b000-6b4cc151b93e)
+![image](https://github.com/user-attachments/assets/ad2fe7c3-1485-4e45-a6f1-50c7296d404a)
+websocket會員與管理員的聊天室,聊天資料有存在資料庫,假如管理員在與不同的對象聊天會顯示紅色警示燈
+![image](https://github.com/user-attachments/assets/ea7f2db2-c463-4e69-b924-a1cf7c64571e)
 
+最後有用log4j2紀錄會員信箱登錄紀錄
