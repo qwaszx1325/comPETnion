@@ -13,4 +13,8 @@
 在管理員頁面把訂單狀態改成已完成會送出mail到信箱
 ![image](https://github.com/user-attachments/assets/ee391a83-cd3d-4e6e-9ef5-885ccab5f5d8)
 訂單狀態為已付款和已完成的訂單都會顯示在月消費的圖表和單月消費的金額上
+![image](https://github.com/user-attachments/assets/017d6945-a182-4cbc-b462-c0ac36b2f2f2)
+![image](https://github.com/user-attachments/assets/a143c57c-e070-4c59-820b-dec632ef3afd)
+![image](https://github.com/user-attachments/assets/4ee0ee57-6dcf-44db-866d-335abfca3f64)
+選擇評價可以到評價頁面,訂單已完成後才已訂單明細進行評價
 
