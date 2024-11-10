@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <title>寵物收養詳細資訊</title>
+    <style>
+        .twchar {
+            font-family: "Chilanka", "TaiwanPearl-Regular", 'Taipei Sans TC', 'Taipei Sans TW';
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: TaiwanPearl-Regular;
+            src: url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff2) format("woff2"),
+                url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff) format("woff");
+        }
+
+        .container-casedetail {
+            display: flex;
+            justify-content: center;
+            background-color: #e7d7cc;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            width: 95%;
+            max-width: 1300px;
+            position: relative;
+        }
+
+        .image-gallery {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .main-image {
+            width: 80%;
+            height: 500px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .thumbnails-container {
+            display: flex;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .thumbnail {
+            flex: 0 0 auto;
+            margin-right: 10px;
+        }
+
+        .thumbnail-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .info {
+            flex: 1;
+            padding: 20px;
+            background-color: #f0e7e1;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin: 20px;
+        }
+
+        .info table {
+            width: 100%;
+            border-spacing: 0;
+            border-collapse: separate;
+        }
+
+        .info td {
+            padding: 10px 0;
+            vertical-align: top;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .info td:first-child {
+            width: 120px;
+            font-weight: bold;
+            color: #50290d;
+        }
+
+        .info td:last-child {
+            padding-left: 10px;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 10px;
+        }
+
+        h1 {
+            color: #CC5500;
+            margin-top: 0;
+        }
+
+        table {
+            width: 100%;
+            border-spacing: 0;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 10px 0;
+            vertical-align: top;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #E9967A;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background-color: #e76f51;
+        }
+
+        i {
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        .agreement-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            overflow-y: auto;
+            animation: fade-in 0.3s ease;
+        }
+
+        .agreement-content {
+            max-width: 800px;
+            margin: 5% auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-container input {
+            margin-right: 10px;
+        }
+
+        .submit-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #submitButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #cccccc;
+            color: white;
+            cursor: not-allowed;
+            transition: background-color 0.3s ease;
+        }
+
+        #submitButton.active {
+            background-color: #3396cb;
+            cursor: pointer;
+        }
+
+        #submitButton:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #submitButton:not(:disabled) {
+            background-color: #3396cb;
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            width: 90%;
+            max-width: 5% auto;
+            padding: 30px;
+            background-color: #fefefe;
+            border: 1px solid #888;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .right-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .swal2-container {
+            z-index: 9999 !important;
+        }
+
+        .swal2-popup,
+        .swal2-title {
+            font-family: "Chilanka" !important;
+        }
+        
+        textarea{
+        	resize: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{layout/header}"></div>
+
+    <div class="container-casedetail twchar" th:each="adoption : ${adoptions}">
+
+        <div class="image-gallery mt-5">
+            <img th:src="@{/adopt/api/showPhoto(id=${adoption.petPhoto[0].id})}" th:alt="主圖" class="main-image"
+                id="mainImage">
+            <div class="thumbnails-container">
+                <div th:each="photo, iterStat : ${adoption.petPhoto}" class="thumbnail">
+                    <img th:src="@{/adopt/api/showPhoto(id=${photo.id})}" th:alt="其他圖片" class="thumbnail-image"
+                        th:data-index="${iterStat.index}" onclick="changeMainImage(this)">
+                </div>
+            </div>
+        </div>
+        <div class="info twchar">
+            <div class="header-container">
+                <h1 th:text="${adoption.petName}" class="twchar"></h1>
+                <div class="social-icons">
+                    <span th:text="分享出去+'➜'" style="vertical-align: baseline"></span>
+                    <i class="fa-brands fa-facebook"
+                        th:attr="onclick=${'shareOnFacebook(' + adoption.petCaseId + ')'}"></i>
+                    <i class="fa-brands fa-x-twitter"
+                        th:attr="onclick=${'shareOnTwitter(' + adoption.petCaseId + ')'}"></i>
+                    <i class="fa-brands fa-instagram"
+                        th:attr="onclick=${'shareOnInstagram(' + adoption.petCaseId + ')'}"></i>
+                </div>
+            </div>
+            <table>
+                <tr>
+                    <td>所在地：</td>
+                    <td th:utext="${adoption.petCity} + ' ' + ${adoption.petDistrict}"></td>
+                </tr>
+                <tr>
+                    <td>種類：</td>
+                    <td th:text="${adoption.petKind}"></td>
+                </tr>
+                <tr>
+                    <td>品種：</td>
+                    <td th:text="${adoption.petBreed}"></td>
+                </tr>
+                <tr>
+                    <td>毛色：</td>
+                    <td th:text="${adoption.petColour}"></td>
+                </tr>
+                <tr>
+                    <td>性別：</td>
+                    <td th:text="${adoption.petSex}"></td>
+                </tr>
+                <tr>
+                    <td>體型：</td>
+                    <td th:text="${adoption.petBodyType}"></td>
+                </tr>
+                <tr>
+                    <td>年紀：</td>
+                    <td th:text="${adoption.petAge}"></td>
+                </tr>
+                <tr>
+                    <td>醫療紀錄：</td>
+                    <td th:text="${adoption.medicalRecord}"></td>
+                </tr>
+                <tr>
+                    <td>寵物描述：</td>
+                    <td th:text="${adoption.petDescription}"></td>
+                </tr>
+                <tr>
+                    <td>刊登日期：</td>
+                    <td th:text="${adoption} ? ${#dates.format(adoption.petPostDate, 'yyyy-MM-dd')}"></td>
+                </tr>
+            </table>
+            <a href="javascript:void(0)" class="button" onclick="checkLoginStatus()" id="applyButton">我要申請領養</a>
+
+        </div>
+    </div>
+
+
+    <div th:replace="~{layout/footer}"></div>
+
+    <div id="agreementContainer" class="agreement-container twchar">
+        <div class="agreement-content" th:each="adoption : ${adoptions}">
+            <input type="hidden" id="petCaseId" th:value="${adoption.petCaseId}">
+            <input type="hidden" id="applyTime">
+            <h2 th:text="'認養 ' + ${adoption.petName} + ' 切結書'" class="twchar"></h2>
+            <p><strong>照護與責任：</strong> 我確保我將以善待及適當的方式照顧這隻寵物。我將每天按時給予寵物足夠的食物和水，並保持其食物和水的清潔。我將提供合適的住所，確保其環境乾淨和安全。</p>
+            <p><strong>保健與醫療：</strong> 我將確保寵物接受必要的疫苗接種和預防醫療，包括定期健康檢查和寄生蟲防治。我願意為寵物提供必要的醫療治療，包括突發狀況或緊急情況下的醫療處置。</p>
+            <p><strong>寵物行為與訓練：</strong> 我了解每隻寵物都有其行為特點和需求。我願意耐心處理寵物的行為問題，並願意參與必要的訓練課程以促進其社交化和適應能力。</p>
+            <p><strong>安全與環境：</strong> 我將確保寵物居住的環境安全，避免其受到傷害或造成他人困擾。我將遵守當地法律和社區規定，包括但不限於遛狗場所和清潔規定。</p>
+            <p><strong>領養後支持與聯繫：</strong> 如有任何對寵物健康或行為的疑慮或問題，我將及時與領養機構聯繫，並尋求專業的意見和幫助。我願意向領養機構提供寵物的照片和健康狀況更新。</p>
+            <p><strong>終身承諾：</strong> 我了解領養寵物是一種終身的責任，我將致力於提供終身的愛與照顧。我承諾不會隨意棄養或轉讓寵物給他人或其他機構，並將竭盡所能提供其需求所需的資源和關愛。</p>
+            <p><strong>法律遵循與責任：</strong> 我將遵守當地和國家的相關法律和條例，包括寵物註冊、稅費支付及其他相關事項。我將保證寵物獲得合法註冊和符合所有規定的寵物證件（如適用）。</p>
+            <p><strong>年滿20歲或已經過法定代理人同意：</strong> 我聲明我年滿20歲，或已經獲得法定代理人的同意，並願意對所領養的寵物負責。</p>
+            <div class="checkbox-container">
+                <input type="checkbox" id="agreement" name="agreement">
+                <label for="agreement">我，
+                    <input type="text" id="userNameInput" placeholder="請輸入您的名字">
+                    ，願意遵守本切結書所列的所有條款和條件。
+                </label>
+            </div>
+            <p><strong>請描述您想要領養這個寵物的理由：</strong></p>
+            <textarea id="applyReason" rows="5" style="width: 100%; margin-bottom: 20px;"
+                placeholder="可稍微描述薪資收入、家庭環境、喜歡這隻寵物的原因，以增加被選中的機率！"></textarea>
+
+            <div class="submit-container">
+                <button id="submitButton" onclick="confirmAdoption()" disabled>提交申請</button>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+           		<button id="oneClickInput" class="btn btn-outline-light">一鍵輸入</button>
+                <button onclick="toggleAgreement()" class="btn btn-light">取消</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+    <script>
+
+        function toggleAgreement() {
+            var agreementContainer = document.getElementById("agreementContainer");
+            if (agreementContainer.style.display === "none" || agreementContainer.style.display === "") {
+                agreementContainer.style.display = "block";
+            } else {
+                agreementContainer.style.display = "none";
+            }
+        }
+
+        function checkLoginStatus() {
+            axios.get('/comPETnion/member/adopt/checkLoginStatus')
+                .then(response => {
+                    if (response.data === "已登入") {
+                        toggleAgreement();
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "您尚未登入",
+                            text: "登入後才可申請領養喔！快登入吧！",
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error("Error checking login status: ", error);
+                });
+        }
+
+        const agreementCheckbox = document.querySelector('#agreement');
+        const submitBtn = document.querySelector('#submitButton');
+        const userNameInput = document.querySelector('#userNameInput');
+        const applyReasonInput = document.querySelector('#applyReason');
+        function confirmAdoption() {
+            const applyReason = applyReasonInput.value.trim();
+            Swal.fire({
+                title: "你確定要領養這隻寵物嗎？",
+                text: "如果決定了就要愛護這個小生命喔！",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "我確定要！",
+                cancelButtonText: "再思考一下"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const petCaseId = document.querySelector('#petCaseId').value;
+                    const applicantName = userNameInput.value;
+                    const agreement = agreementCheckbox.checked ? "已同意" : "未同意";
+                    const applyTime = new Date().toISOString().replace('T', ' ').slice(0, -1);
+
+                    const adoptionApplication = {
+                        applicantName: applicantName,
+                        agreement: agreement,
+                        applyTime: applyTime,
+                        applyReason: applyReason,
+                        adoptions: {
+                            petCaseId: petCaseId
+                        }
+                    };
+
+                    axios.post('/comPETnion/member/adopt/RequestSend', adoptionApplication)
+                        .then(response => {
+                            Swal.fire({
+                                title: "申請已提交！",
+                                text: "請待送養者審核，後續通知。",
+                                icon: "success"
+                            }).then(() => {
+                                toggleAgreement(); // 自動關閉 modal
+                            });
+                        })
+                        .catch(error => {
+                            if (error.response && error.response.status === 401) {
+                                Swal.fire({
+                                    title: "未登入",
+                                    text: "請先登入以申請領養。",
+                                    icon: "error"
+                                });
+                            } else if (error.response && error.response.status === 400) {
+                                Swal.fire({
+                                    title: "申請失敗",
+                                    text: "您已申請過此案件的領養，請稍待通知！",
+                                    icon: "error"
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "申請失敗",
+                                    text: "發生錯誤，請稍後再試。",
+                                    icon: "error"
+                                });
+                            }
+                        });
+                }
+            });
+        }
+
+        document.getElementById('agreement').addEventListener('change', function () {
+            var submitButton = document.getElementById('submitButton');
+            if (this.checked && document.getElementById('userNameInput').value.trim() !== '' && document.getElementById('applyReason').value.trim() !== '') {
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
+        });
+
+        document.getElementById('userNameInput').addEventListener('input', function () {
+            var submitButton = document.getElementById('submitButton');
+            if (document.getElementById('agreement').checked && this.value.trim() !== '' && document.getElementById('applyReason').value.trim() !== '') {
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
+        });
+
+        document.getElementById('applyReason').addEventListener('input', function () {
+            var submitButton = document.getElementById('submitButton');
+            if (document.getElementById('agreement').checked && document.getElementById('userNameInput').value.trim() !== '' && this.value.trim() !== '') {
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
+        });
+
+        function changeMainImage(thumbnail) {
+            var mainImage = document.getElementById("mainImage");
+            mainImage.src = thumbnail.src;
+        }
+
+        // 社群分享（FB、X、IG）
+        window.fbAsyncInit = function () {
+            FB.init({
+                appId: '1000360295213102', // 替換為你的App ID
+                cookie: true,          // 啟用Cookie以便伺服器能夠存取會話
+                xfbml: true,          // 解析頁面上的社交插件
+                version: 'v14.0'        // 使用的Facebook API版本
+            });
+
+            FB.AppEvents.logPageView();
+        };
+
+        (function (d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) { return; }
+            js = d.createElement(s); js.id = id;
+            js.src = "https://connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+
+        function shareOnFacebook(petCaseId) {
+            FB.ui({
+                method: 'share',
+                href: `https://9efe-61-222-34-1.ngrok-free.app/comPETnion/public/adopt/caseDetails?petCaseId=${petCaseId}`,
+            }, function (response) { });
+        }
+
+        function shareOnTwitter(petCaseId) {
+            const url = `https://9efe-61-222-34-1.ngrok-free.app/comPETnion/public/adopt/caseDetails?petCaseId=${petCaseId}`;
+            const text = encodeURIComponent("來看看我剛剛發佈的領養案件");
+            window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${text}`, '_blank');
+        }
+
+        function shareOnInstagram(petCaseId) {
+            const url = `https://9efe-61-222-34-1.ngrok-free.app/comPETnion/public/adopt/caseDetails?petCaseId=${petCaseId}`;
+            const instagramUrl = `https://www.instagram.com/?url=${encodeURIComponent(url)}`;
+            window.open(instagramUrl, '_blank');
+        }
+
+        document.querySelector('#oneClickInput').addEventListener('click', function () {
+            document.getElementById('userNameInput').value = "小八";
+            document.getElementById('applyReason').value = "我們夫妻倆都是教師，家庭收入穩定，每月約十二萬台幣。我們住在有前庭和後院的透天厝，覺得狗狗能夠在院子裡跑跳玩耍，非常適合養在這樣的環境。因為我們從小就喜歡狗，也希望孩子能在成長過程中有寵物的陪伴，增強責任感和愛心。";
+        });
+
+    </script>
+</body>
+
+</html>

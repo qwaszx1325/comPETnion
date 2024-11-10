@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org/">
+
+<head>
+	<meta charset="UTF-8">
+	<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.11.0/dist/sweetalert2.min.css" rel="stylesheet">
+
+	<title>申請案件頁面</title>
+	<style>
+		.twchar {
+			font-family: "Chilanka", "TaiwanPearl-Regular", 'Taipei Sans TC',
+				'Taipei Sans TW';
+			font-optical-sizing: auto;
+			font-weight: 400;
+			font-style: normal;
+		}
+
+		@font-face {
+			font-family: TaiwanPearl-Regular;
+			src:
+				url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff2) format("woff2"),
+				url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff) format("woff");
+		}
+
+		.container-myapplication {
+			width: calc(100% - 350px);
+			/* 減去sidebar寬度和一些邊距 */
+			max-width: 1050px;
+			padding: 30px;
+			background-color: #f5f0e8;
+			border-radius: 15px;
+			box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+			margin: 30px 50px 0px 350px;
+		}
+
+		h2 {
+			text-align: center;
+			color: #8B4513;
+			margin-bottom: 30px;
+			font-size: 28px;
+			font-weight: 700;
+		}
+
+		table {
+			margin: auto;
+			width: 100%;
+			border-collapse: separate;
+			border-spacing: 0;
+			border: 1px solid #8e6b61;
+			border-radius: 8px;
+			overflow: hidden;
+		}
+
+		table th,
+		table td {
+			padding: 8px;
+			text-align: center;
+			vertical-align: middle;
+		}
+
+		table th {
+			background-color: #8e6b61;
+			color: #FFFFFF;
+			font-weight: 500;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+		}
+
+		table td {
+			border-bottom: 1px solid #e8e0d5;
+		}
+
+		table tr:last-child td {
+			border-bottom: none;
+		}
+
+		table tr:nth-child(even) {
+			background-color: #faf7f2;
+		}
+
+		table tr:hover {
+			background-color: #f0e9e0;
+			transition: background-color 0.3s ease;
+		}
+
+		.contact-btn.disabled {
+			opacity: 0.6;
+			cursor: not-allowed;
+		}
+
+		.swal2-popup,
+		.swal2-title,
+		.swal2 {
+			font-family: "TaiwanPearl-Regular" !important;
+			margin: 0 5px;
+		}
+	</style>
+</head>
+
+
+<body>
+	<div th:replace="~{layout/header}"></div>
+	<div th:replace="~{layout/memberSidebar}"></div>
+
+	<div class="container-myapplication twchar">
+		<h2 class="twchar">我的申請案件</h2>
+		<table>
+			<thead>
+				<tr>
+					<th>領養寵物詳細資訊</th>
+					<th>申請日期</th>
+					<th>申請狀態</th>
+					<th>取消申請</th>
+					<th>聯絡對方</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="applications : ${myApplication}">
+					<td><input type="hidden" th:value="${applications.applyId}" />
+						<form th:action="@{/public/adopt/caseDetails}" method="get">
+							<input type="hidden" name="petCaseId" th:value="${applications.adoptions.petCaseId}" />
+							<span th:text="${applications.adoptions.petName}"></span>
+							<button type="submit" class="btn btn-outline-secondary">詳細資訊</button>
+						</form>
+					</td>
+					<td th:text="${applications} ? ${#dates.format(applications.applyTime, 'yyyy-MM-dd')}"></td>
+					<td
+						th:text="${applications.applyStatus == 'PENDING' ? '待送養人回覆' : applications.applyStatus == 'SELECTED' ? '送養人已選擇您為收養人，請等待聯繫' : applications.applyStatus == 'EXPIRED' ? '很抱歉未能收到回覆，請選擇領養其他案件' : applications.applyStatus == 'CANCEL' ? '已取消申請' : ''}">
+					</td>
+					<td>
+						<form th:action="@{/member/adopt/cancelApplication}" class="cancelForm" method="post">
+							<input type="hidden" name="applyId" th:value="${applications.applyId}" /> <input
+								type="hidden" name="_method" value="DELETE">
+							<button type="submit" class="cancel btn btn-secondary"
+								th:disabled="${applications.applyStatus == 'SELECTED' || applications.applyStatus == 'ADOPTED' || applications.applyStatus == 'EXPIRED' || applications.applyStatus == 'CANCEL'}">取消</button>
+						</form>
+					</td>
+					<td><input type="hidden" id="chatBaseUrl" th:value="@{/member/chat/}">
+						<button type="button" class="btn btn-outline-secondary contact-btn" style="width: 100%;"
+							th:onclick="${applications.applyStatus == 'SELECTED'} ? 'contactUser(' + ${applications.members.memberId} + ')' : 'void(0)'"
+							th:disabled="${applications.applyStatus != 'SELECTED'}"
+							th:classappend="${applications.applyStatus != 'SELECTED'} ? 'disabled' : ''">
+							<span th:text="${applications.applyStatus == 'SELECTED'} ? '聯絡對方' : '尚未選中'"></span>
+						</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<div th:replace="~{layout/footer}"></div>
+
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.11.0/dist/sweetalert2.all.min.js"></script>
+	<script>
+		const cancelBtn = document.querySelectorAll(".cancel");
+		cancelBtn.forEach(function (cancelBtn) {
+			cancelBtn.addEventListener("click", function (event) {
+				event.preventDefault();
+				const form = this.closest(".cancelForm");
+				const swalWithBootstrapButtons = Swal.mixin({
+					customClass: {
+						confirmButton: "btn btn-success swal2",
+						cancelButton: "btn btn-danger swal2"
+					},
+					buttonsStyling: false
+				});
+
+				swalWithBootstrapButtons.fire({
+					title: "確定要取消此案件的申請？",
+					icon: "warning",
+					showCancelButton: true,
+					confirmButtonText: "是的，請取消！",
+					cancelButtonText: "再思考一下",
+					reverseButtons: false
+				}).then((result) => {
+					if (result.isConfirmed) {
+						form.submit();
+						swalWithBootstrapButtons.fire({
+							title: "已取消成功！",
+							icon: "success"
+						});
+					}
+				})
+			});
+		});
+
+		function contactUser(receiverId) {
+			var baseUrl = document.getElementById('chatBaseUrl').value;
+			window.location.href = baseUrl + receiverId;
+		}
+
+	</script>
+</body>
+
+</html>

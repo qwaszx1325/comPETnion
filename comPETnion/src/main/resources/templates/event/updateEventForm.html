@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/">
+
+<head>
+	<meta charset="UTF-8">
+	<title>活動修改</title>
+	<link rel="stylesheet" type="text/css" href="index/style.css">
+	<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.11.0/dist/sweetalert2.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.11.0/dist/sweetalert2.all.min.js"></script>
+	<script>
+		async function init() {
+			await customElements.whenDefined('gmp-map');
+
+			const map = document.querySelector('gmp-map');
+			const marker = document.querySelector('gmp-advanced-marker');
+			const placePicker = document.querySelector('gmpx-place-picker');
+			const infowindow = new google.maps.InfoWindow();
+
+			map.innerMap.setOptions({
+				mapTypeControl: false
+			});
+
+			const eventLatitude = parseFloat(document.getElementById('eventPlaceLatitude').value);
+			const eventLongitude = parseFloat(document.getElementById('eventPlaceLongitude').value);
+
+			if (!isNaN(eventLatitude) && !isNaN(eventLongitude)) {
+				const eventLocation = {
+					lat: eventLatitude,
+					lng: eventLongitude
+				};
+
+				map.center = eventLocation;
+				map.zoom = 13;
+				marker.position = eventLocation;
+				map.innerMap.panTo(eventLocation);
+			} else {
+				console.error('從資料庫檢索的座標無效。');
+				map.center = { lat: 25.043399, lng: 121.540555 };
+				map.zoom = 13;
+			}
+
+			placePicker.addEventListener('gmpx-placechange', () => {
+				const place = placePicker.value;
+
+				if (!place.location) {
+					window.alert(
+						"No details available for input: '" + place.name + "'"
+					);
+					infowindow.close();
+					marker.position = null;
+					return;
+				}
+
+				const eventPlaceNameInput = document.getElementById('eventPlaceName');
+				const eventPlaceAddressInput = document.getElementById('eventPlaceAddress');
+				const eventPlaceLatitudeInput = document.getElementById('eventPlaceLatitude');
+				const eventPlaceLongitudeInput = document.getElementById('eventPlaceLongitude');
+				eventPlaceNameInput.value = place.displayName;
+				eventPlaceAddressInput.value = place.formattedAddress;
+				eventPlaceLatitudeInput.value = place.location.lat();
+				eventPlaceLongitudeInput.value = place.location.lng();
+
+				if (place.viewport) {
+					map.innerMap.fitBounds(place.viewport);
+				} else {
+					map.center = place.location;
+					map.zoom = 17;
+				}
+
+				marker.position = place.location;
+				infowindow.setContent(
+					`<strong>${place.displayName}</strong><br>
+				 <span>${place.formattedAddress}</span>
+			  `);
+				infowindow.open(map.innerMap, marker);
+			});
+		}
+
+		document.addEventListener('DOMContentLoaded', init);
+
+	</script>
+	<script type="module" src="https://unpkg.com/@googlemaps/extended-component-library@0.6">
+	</script>
+	<style>
+		html,
+		body {
+			height: 100%;
+			margin: 0;
+			padding: 0;
+		}
+
+		.place-picker-container {
+			padding: 20px;
+		}
+
+		#map {
+			width: 500px;
+			height: 300px;
+			margin-left: 50px;
+		}
+
+		legend {
+			color: rgb(136, 109, 92);
+			font-weight: bold;
+			font-size: 40px;
+			margin-left: 50px;
+		}
+
+		.box {
+			width: 550px;
+			border-bottom: 1px solid RGB(208, 185, 153);
+			margin: 20px;
+			padding-bottom: 10px;
+		}
+
+		.button {
+			width: 450px;
+			margin: 20px;
+			text-align: center;
+		}
+
+		.t1 {
+			width: 150px;
+			float: left;
+		}
+
+		#warning {
+			color: red;
+			display: none;
+		}
+
+		#dateWarning {
+			color: red;
+			display: none;
+		}
+
+		.buttonCss {
+			display: inline-block;
+			padding: 5px 20px;
+			border-radius: 10px;
+			border: 2px solid #632726cb;
+			background-color: #dabea7;
+			color: #876d5a;
+			font-weight: bold;
+			transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+		}
+
+		.buttonCss:hover {
+			background-color: #632726cb;
+			border-color: #632726cb;
+			color: white;
+		}
+
+		.swal2-popup,
+		.swal2-title {
+			font-family: "Chilanka", "TaiwanPearl-Regular", 'Taipei Sans TC', 'Taipei Sans TW' !important;
+		}
+
+		.form_container {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.placebox {
+			padding-bottom: 50px;
+		}
+		
+		#eventPlaceAddress{
+		    margin-left: 150px;
+		}
+	</style>
+</head>
+
+<body>
+	<div th:replace="~{layout/header}"></div>
+	<div class="form_container">
+		<form id="eventUpdateForm" method="post" th:action="@{/member/updateEvent.controller}" enctype="multipart/form-data"
+			th:object="${eventBean}" class="twchar mt-4">
+			<input type="hidden" name="_method" value="PUT" />
+			<fieldset>
+				<legend>活動更新表單</legend>
+				<div class="box">
+					<label for="eventId" class="t1">活動號碼:</label><input type="text" id="eventId" name="eventId"
+						autofocus size="10" th:value="${eventBean.eventId}" readonly>
+				</div>
+
+					<input type="hidden" id="hostMemberId"
+						name="hostMemberId" size="10" th:value="${eventBean.hostMember?.memberId}" readonly>
+
+
+				<div class="box">
+					<label for="eventSubject" class="t1">主題:</label><input type="text" id="eventSubject"
+						name="eventSubject" size="10" th:value="${eventBean.eventSubject}" required>
+				</div>
+				<div class="box">
+					<label for="eventContent" class="t1">內容:</label>
+					<textarea name="eventContent" id="eventContent" cols="40" rows="5"
+						th:text="${eventBean.eventContent}" required></textarea>
+				</div>
+				<div class="box">
+					<label for="eventDate" class="t1">舉辦時間:</label>
+					<input type="datetime-local" name="eventDate" id="eventDate"
+						th:value="${#dates.format(eventBean.eventDate, 'yyyy-MM-dd HH:mm')}"
+						th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm')}" required>
+				</div>
+				<div class="box placebox">
+					<label for="eventPlace" class="t1">地點:</label>
+					<input type="text" id="eventPlaceName" name="eventPlaceName" size="30"
+						th:value="${eventBean.eventPlaceName}" required readonly>
+					<input type="text" id="eventPlaceAddress" name="eventPlaceAddress" size="30"
+						th:value="${eventBean.eventPlaceAddress}" required readonly>
+					<input type="hidden" id="eventPlaceLatitude" name="eventPlaceLatitude" size="30"
+						th:value="${eventBean.eventPlaceLatitude}" required>
+					<input type="hidden" id="eventPlaceLongitude" name="eventPlaceLongitude" size="30"
+						th:value="${eventBean.eventPlaceLongitude}" required>
+
+					<gmpx-api-loader th:attr="key=${apiKey}, solution-channel='GMP_GE_mapsandplacesautocomplete_v1'">
+					</gmpx-api-loader>
+					<div id="map">
+						<gmp-map center="40.749933,-73.98633" zoom="13" map-id="DEMO_MAP_ID">
+							<div slot="control-block-start-inline-start" class="place-picker-container">
+								<gmpx-place-picker placeholder="Enter an address"></gmpx-place-picker>
+							</div>
+							<gmp-advanced-marker></gmp-advanced-marker>
+						</gmp-map>
+					</div>
+				</div>
+				<div class="box">
+					<label for="numberOfParticipant" class="t1">人數限制:</label>
+					<input type="text" name="numberOfParticipant" maxlength="10" pattern="^[0-9]+$"
+						id="numberOfParticipant" th:value="${eventBean.numberOfParticipant}" required>
+					<span id="warning">請輸入數字</span>
+				</div>
+				<div class="box">
+					<label for="closingDate" class="t1">報名截止日期:</label>
+					<input type="date" name="closingDate" id="closingDate"
+						th:value="${#dates.format(eventBean.closingDate, 'yyyy-MM-dd')}"
+						th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required>
+					<span id="dateWarning">報名截止日期不能晚於舉辦時間</span>
+				</div>
+
+				<div class="box">
+					<input type="checkbox" id="keepOriginal" name="keepOriginal" value="true"
+						th:checked="${false}">保留原圖<br>
+					<label for="eventImg" class="t1" id="img">活動圖片:</label>
+					<input type="file" name="eventImg" id="eventImg" accept=".jpg,.png,.webp">
+				</div>
+			</fieldset>
+			<div class="button">
+				<input type="submit" value="送出" class="buttonCss">
+				<button type="button" onclick="history.back()" class="buttonCss">取消</button>
+			</div>
+		</form>
+	</div>
+	<div th:replace="~{layout/footer}"></div>
+	<script>
+		document.getElementById('keepOriginal').addEventListener('change',
+			function () {
+				let newImageUpload = document.getElementById('eventImg');
+				let labelImg = document.getElementById('img');
+				if (this.checked) {
+					newImageUpload.style.display = 'none';
+					labelImg.style.display = 'none';
+				} else {
+					newImageUpload.style.display = 'block';
+					labelImg.style.display = 'inline';
+				}
+			});
+		//若人數限制欄位輸入數字以外的內容 顯示警告
+		document.getElementById('numberOfParticipant').addEventListener(
+			'input', function () {
+				let numberOfParticipantInput = this.value;
+				let warning = document.getElementById('warning');
+				let pattern = /^[0-9]+$/;
+				if (pattern.test(numberOfParticipantInput)) {
+					warning.style.display = 'none';
+				} else {
+					warning.style.display = 'inline';
+				}
+			});
+
+		const eventDate = document.getElementById('eventDate');
+		const closingDate = document.getElementById('closingDate');
+		const dateWarning = document.getElementById('dateWarning');
+
+		eventDate.addEventListener('change', function () {
+			var eventDateValue = new Date(this.value);
+
+			// 如果截止日期已經選擇了晚於舉辦日期的日期，清空截止日期的值
+			var closingDateValue = new Date(closingDate.value);
+			if (closingDateValue > eventDateValue) {
+				dateWarning.style.display = 'inline';
+				closingDate.value = '';
+			} else {
+				dateWarning.style.display = 'none';
+			}
+
+			//設置截止日期的max屬性，注意格式要和closingDate的格式一致
+			var maxDate = eventDateValue.toISOString().split('T')[0];// 將日期轉換成"yyyy-MM-dd"格式
+			closingDate.setAttribute('max', maxDate);
+		})
+
+		closingDate.addEventListener('input', function () {
+			let closingDateValue = this.value;
+			let eventDateValue = eventDate.value;
+
+			if (closingDateValue < eventDateValue) {
+				dateWarning.style.display = 'none';
+			} else {
+				dateWarning.style.display = 'inline';
+			}
+		});
+
+		document.addEventListener('DOMContentLoaded', function () {
+			const eventUpdateForm = document.getElementById("eventUpdateForm");
+
+			eventUpdateForm.addEventListener('submit', function (event) {
+				event.preventDefault(); // Prevent the form from submitting normally
+
+				Swal.fire({
+					title: "確定要儲存變更嗎？",
+					text: "送出更新申請後將須重新等候審核",
+					icon: "warning",
+					showCancelButton: true,
+					confirmButtonColor: "#3085d6",
+					cancelButtonColor: "#d33",
+					confirmButtonText: "儲存",
+					cancelButtonText: "取消"
+				}).then((result) => {
+					if (result.isConfirmed) {
+						// If user confirms, show deletion success message
+						Swal.fire({
+							title: "已送出！",
+							text: "您的變更已成功送出申請。",
+							icon: "success"
+						}).then(() => {
+							// After showing success message, submit the form
+							eventUpdateForm.submit();
+						});
+					}
+				});
+			});
+		});
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文章資料後台</title>
+
+<!-- Include DataTables CSS -->
+<link rel="stylesheet"
+	href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+<link rel="stylesheet"
+	href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
+
+
+<style>
+    button {
+            padding: 10px 20px;
+            font-size: 14px;
+            color: #fff;
+            background-color: #876d5a;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            line-height: 1;
+            vertical-align: middle;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+  .card img {
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .card img:hover {
+            transform: scale(1.1);
+        }
+.modal-body img {
+    max-width: 100%;
+    height: auto;
+  }
+.modal-xl{
+
+width: 1140px;
+}
+
+.text-area {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-height: 70px;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+}
+
+body {
+	background-color: white;
+	margin: 0;
+	padding: 0;
+}
+
+.container {
+	width: 100%;
+	margin: 0 auto;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+td img {
+	width: 50px;
+}
+
+.event-content {
+	width: 300px;
+}
+
+td a {
+	color: inherit;
+}
+
+th {
+	background-color: RGB(82, 40, 26);
+	color: RGB(241, 237, 233);
+	transition: background-color 0.3s, color 0.3s;
+}
+
+th:hover {
+	background-color: RGB(223, 207, 185);
+	color: RGB(82, 40, 26);
+}
+
+tbody tr:hover {
+	background-color: #876d5a;
+	color: RGB(82, 40, 26);
+}
+
+.button-icon {
+	background-color: transparent;
+	border: none;
+	transition: color 0.3s;
+}
+
+.button-icon:hover {
+	color: RGB(199, 171, 133);
+}
+
+@font-face {
+        font-family: TaiwanPearl-Regular;
+        src: url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff2) format("woff2"),
+            url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff) format("woff");
+    }
+.twchar {
+	font-family: "Chilanka", 'Taipei Sans TC', 'Taipei Sans TW', sans-serif;
+	font-optical-sizing: auto;
+	font-weight: weight;
+	font-style: normal;
+}
+
+th, td {
+	min-width: 100px;
+}
+
+.minw {
+	min-width: 110px;
+}
+
+.modal-body p {
+	white-space: pre-line;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	max-height: 400px; /* Set a max height if needed */
+	overflow-y: auto;
+	/* Enable vertical scrolling if content is too long */
+}
+
+.order-actions button:hover {
+            background-color: #b4885b;
+        }
+
+        .order-actions form button {
+            background-color: #a5c4d4;
+        }
+
+        .order-actions form button:hover {
+            background-color: #86a3b8;
+        }
+</style>
+</head>
+<body>
+	<div id="layoutSidenav" class="twchar">
+		<div th:replace="~{layout/dashboard}" class="twchar"></div>
+		<div id="layoutSidenav_content">
+			<main class="twchar">
+				<div class="container twchar">
+					<form method="post" th:action="@{/admin/findAllPost}">
+						<table id="myTable"
+							class="display cell-border stripe nowrap twchar">
+							<thead>
+								<!--  -->
+								<tr>
+									<th>會員</th>
+									<th>文章名稱</th>
+									<th>文章內容</th>
+									<th>發佈日期</th>
+									<th>主題類型</th>
+									<th>狀態</th>
+									<th>檢舉</th>
+									<th>刪除狀態</th>
+
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="post, iterStat : ${arrayList}">
+									<td th:text="${post.memberName}"></td>
+									<td th:text="${post.postName}"></td>
+								<!--  <td class="text-1 text-area" th:utext="${post.postContent}"></td>-->	
+
+									<td>
+										<button type="button" class=""
+											data-bs-toggle="modal"
+											th:data-bs-target="'#modal-' + ${iterStat.index}">
+											詳請</button> <!-- Modal -->
+										<div class="modal fade   modal-xl"  th:id="'modal-' + ${iterStat.index}"
+											data-bs-backdrop="static" data-bs-keyboard="false"
+											tabindex="-1"
+											th:aria-labelledby="'modalLabel-' + ${iterStat.index}"
+											aria-hidden="true">
+											<div class="modal-dialog">
+												<div class="modal-content ">
+													<div class="modal-header ">
+														<h1 class="modal-title fs-5"
+															th:id="'modalLabel-' + ${iterStat.index}">文章內容</h1>
+														<button type="button" class="btn-close"
+															data-bs-dismiss="modal" aria-label="Close"></button>
+													</div>
+													<div class="modal-body">
+														<p th:utext="${post.postContent}"></p>
+													</div>
+													<div class="modal-footer">
+														<button type="button" class="modify-button"
+															data-bs-dismiss="modal">關閉</button>
+													</div>
+												</div>
+											</div>
+										</div>
+									</td>
+									<td th:text="${#dates.format(post.postDate, 'yyyy年MM月dd日')}"></td>
+									<td th:text="${post.theme.themeName}"></td>
+									<td>
+<div class="form-check form-switch twchar" id="check">
+    <span class="status-text" th:text="${post.postShow ? '顯示' : '封鎖'}"></span>
+    <input class="form-check-input toggle-status twchar"
+           type="checkbox"
+           role="switch"
+           th:id="${'flexSwitchCheckDefault' + post.postId}"
+           th:checked="${post.postShow}"
+           th:data-post-id="${post.postId}"
+           onchange="reportSuccessful(this.dataset.postId, this.checked)">
+</div>
+									</td>
+									<td>
+										<!-- Button -->
+										<button type="button" class=" report-btn"
+											data-bs-toggle="modal"
+											th:data-bs-target="'#reportModal-' + ${post.postId}"
+											th:data-post-id="${post.postId}"
+											th:onclick="'handleButtonClick(' + ${post.postId} + ', 1)'">
+											檢舉: <span class="record-count"
+												th:data-post-id="${post.postId}">0</span>
+										</button> <!-- 檢舉Modal -->
+										<div class="modal fade"
+											th:id="'reportModal-' + ${post.postId}" tabindex="-1"
+											th:aria-labelledby="'reportModalLabel-' + ${post.postId}"
+											aria-hidden="true">
+											<div class="modal-dialog" >
+												<div class="modal-content">
+													<div class="modal-header">
+														<h1 class="modal-title fs-5"
+															th:id="'reportModalLabel-' + ${post.postId}">檢舉內容</h1>
+														<button type="button" class="btn-close modify-button"
+															data-bs-dismiss="modal" aria-label="Close"></button>
+													</div>
+													<div class="modal-body">
+														<div th:id="'reportList-' + ${post.postId}"></div>
+														<div th:id="'pagination-' + ${post.postId}" class="mt-3"></div>
+													<input type="hidden" th:value="${post.postId}">
+													</div>
+													<div class="modal-footer">
+														<button type="button" class="modify-button"
+															data-bs-dismiss="modal">關閉</button>
+													</div>
+												</div>
+											</div>
+										</div>
+
+
+
+
+
+
+
+									</td>
+									<td>
+										<div class="form-check form-switch twchar">
+											<span th:text="${post.postDeleteState ? '未刪除' : '刪除'}"></span>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</form>
+				</div>
+			</main>
+		</div>
+	</div>
+	<!-- Include jQuery -->
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	<!-- Include DataTables JS -->
+	<script
+		src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+	<script
+		src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+
+
+
+	<script>
+        $(document).ready(function () {
+            $('#myTable').DataTable({
+                "language": {
+                    "processing": "處理中...",
+                    "loadingRecords": "載入中...",
+                    "paginate": {
+                        "first": "第一頁",
+                        "previous": "上一頁",
+                        "next": "下一頁",
+                        "last": "最後一頁"
+                    },
+                    "emptyTable": "目前沒有資料",
+                    "zeroRecords": "沒有符合的資料",
+                    "info": "顯示第 _START_ 至 _END_ 筆結果，共 _TOTAL_ 筆",
+                    "infoEmpty": "顯示第 0 至 0 筆結果，共 0 筆",
+                    "infoFiltered": "(從 _MAX_ 筆結果中篩選)",
+                    "search": "搜尋：",
+                    "searchPlaceholder": "請輸入關鍵字",
+                    "lengthMenu": "顯示 _MENU_ 筆結果",
+                    "loadingRecords": "載入中...",
+                    "processing": "處理中...",
+                    "aria": {
+                        "sortAscending": "：升冪排列",
+                        "sortDescending": "：降冪排列"
+                    }
+                },
+            });
+
+            // 監聽 checkbox 狀態變化事件
+            $('.toggle-status').on('change', function () {
+                var postId = $(this).data('post-id');
+                var newStatus = $(this).is(':checked');
+                console.log(postId);
+                console.log(newStatus);
+
+                // 使用 jQuery 發送異步 POST 請求更新狀態
+                $.ajax({
+                    method: 'POST',
+                    url: '/comPETnion/admin/updatePostShowStatus',
+                    data: JSON.stringify({
+                        postId: postId,
+                        postShow: newStatus
+                    }),
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    success: function(response) {
+                     location.reload(); // 重新載入頁面       
+                        console.log('Status updated successfully');
+                        // 更新狀態顯示文字
+                        var statusText = newStatus ? '顯示' : '封鎖';
+                        $('#flexSwitchCheckDefault' + postId).next('span').text(statusText);
+                    },
+                    error: function(error) {
+                        console.error('更新狀態失敗', error);
+                    }
+                });
+            });
+        });
+        
+          // 獲取所有帖子的檢舉數量
+    function fetchAllReportCounts() {
+        $('.record-count').each(function() {
+            var countSpan = $(this);
+            var postId = countSpan.data('post-id');
+
+            $.ajax({
+                url: '/comPETnion/admin/reports/countByPostId',  // 確保這個URL是正確的
+                dataType: 'json',
+                method: 'GET',
+                data: { postId: postId },
+                success: function(response) {
+                    countSpan.text(response.count);
+                },
+                error: function(error) {
+                    console.log('Error:', error);
+                    countSpan.text('無法獲取');
+                }
+            });
+        });
+    }
+
+    // 頁面加載完成後立即獲取檢舉數量
+    fetchAllReportCounts();
+
+    // 可選：定期刷新檢舉數量（例如每60秒）
+    // setInterval(fetchAllReportCounts, 1000);
+
+        
+        
+        
+        
+        //隱藏多於字數
+      const len = 30;
+        const ellipsis = document.querySelectorAll('.text-area');
+        ellipsis.forEach((item) => {
+            if(item.innerHTML.length > len) {
+                let txt = item.innerHTML.substring(0, len) + '...';
+                item.innerHTML = txt;
+            }
+        });
+        
+        
+ $(document).ready(function() {
+    // 為所有檢舉按鈕添加點擊事件
+    $('.report-btn').on('click', function() {
+        var postId = $(this).data('post-id');
+        handleButtonClick(postId, 1);
+    });
+});
+
+// 定義全局對象來存儲每個 postId 的當前頁碼
+var currentPageMap = {};
+
+function handleButtonClick(postId, page) {
+    // 初始化或更新當前頁碼
+    currentPageMap[postId] = page;
+    loadReports(postId, page);
+}
+
+function loadReports(postId, page) {
+    $.ajax({
+        url: '/comPETnion/admin/findReportAllByPostId',
+        method: 'GET',
+        data: { postId: postId },
+        success: function(reports) {
+            var reportsPerPage = 5;  // 每頁顯示的檢舉數量
+            var totalPages = Math.ceil(reports.length / reportsPerPage);
+            
+            // 顯示當前頁的檢舉
+            displayReports(reports.slice((page - 1) * reportsPerPage, page * reportsPerPage), postId);
+            
+            // 更新分頁
+            updatePagination(postId, page, totalPages, reports.length);
+        },
+        error: function(xhr, status, error) {
+            console.error("AJAX error: " + status + ": " + error);
+        }
+    });
+}
+
+function displayReports(reports, postId) {
+    var reportList = $('#reportList-' + postId);
+    reportList.empty(); // 清空現有內容
+
+    if (reports.length === 0) {
+        reportList.append('<p>目前沒有檢舉</p>');
+    } else {
+        $.each(reports, function(index, report) {
+            var reportElement = $('<div id="report-' + report.reportId + '">').html(
+                '檢舉者: ' + report.memberName + '<br>' +
+                '檢舉原因: ' + report.reportContent + '<br>' +
+                '檢舉時間: ' + new Date(report.reportDate).toLocaleString() + '<br>' +
+                '狀態: ' +
+                '<select class="form-select report-status" ' +
+                'data-report-id="' + report.reportId + '" ' +
+                'data-post-id="' + postId + '" ' + // 添加 data-post-id 屬性
+                'onchange="updateReportStatus(this);">' +
+                '<option value="0"' + (report.reportState === 0 ? ' selected' : '') + '>未處理</option>' +
+                '<option value="1"' + (report.reportState === 1 ? ' selected' : '') + '>檢舉成立</option>' +
+                '<option value="2"' + (report.reportState === 2 ? ' selected' : '') + '>檢舉不成立</option>' +
+                '</select>' +
+                '<hr>'
+            );
+            reportList.append(reportElement);
+        });
+    }
+}
+
+ function updateReportStatus(element) {
+    console.log('updateReportStatus 函數被調用');
+    console.log('postId'+postId);
+    var reportId = $(element).data('report-id');
+    var postId = $(element).data('post-id'); // 确保在元素上有 data-post-id 属性
+    var newStatus = parseInt($(element).val());
+    console.log('reportId:', reportId, 'newStatus:', newStatus);
+
+    if (!confirm('你確定要修改狀態嗎？')) {
+        return;
+    }
+
+    $.ajax({
+        method: 'POST',
+        url: '/comPETnion/admin/updateReportStatus',
+        data: {
+            reportId: reportId.toString(),
+            reportState: newStatus.toString()
+        },
+        dataType: 'json',
+        success: function(response) {
+            alert('狀態已成功更新！');
+            var statusText = '';
+            switch(newStatus) {
+                case 0:
+                    statusText = '未處理';
+                    break;
+                case 1:
+                    statusText = '檢舉成立';
+                    console.log('posId:', postId, 'newStatus:', newStatus);
+                    reportSuccessful(postId, false); // 更新帖子狀態為封鎖
+                    break;
+                case 2:
+                    statusText = '檢舉不成立';
+                    break;
+            }
+            // 更新對應的報告條目中的狀態文本
+            var reportElement = $('#report-' + reportId);
+            reportElement.find('.status-text').text(statusText);
+
+            // 更新報告計數
+            fetchAllReportCounts();
+        },
+        error: function(xhr, status, error) {
+            alert('狀態更新失敗：' + xhr.responseText);
+        }
+    });
+}
+
+function reportSuccessful(postId, newStatus) {
+    console.log(`updatePostShowStatus function called for post ${postId} with new status ${newStatus}`);
+
+    fetch('/comPETnion/admin/reportSuccessful', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            postId: postId,
+            postShow: newStatus
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Status updated successfully', data);
+        const statusText = newStatus ? '顯示' : '封鎖';
+        document.querySelector(`#flexSwitchCheckDefault${postId}`).previousElementSibling .textContent = statusText;
+         location.reload(); // 重新載入頁面
+    })
+    .catch(error => {
+        console.error('Failed to update status:', error);
+    });
+}
+
+
+
+
+
+
+function updatePagination(postId, currentPage, totalPages, totalReports) {
+    var paginationElement = $('#pagination-' + postId);
+    paginationElement.empty();  // 清空現有內容
+    
+    // 顯示總報告數
+    paginationElement.append('<p>總檢舉數: ' + totalReports + '</p>');
+    
+    if (totalPages > 1) {
+        for (var i = 1; i <= totalPages; i++) {
+            var pageButton = $('<button type="button">')
+                .text(i)
+                .addClass('btn btn-sm mx-1')
+                .addClass(i === currentPage ? 'btn-primary' : 'btn-outline-primary')
+                .on('click', function() {
+                    var pageNumber = parseInt($(this).text());
+                    currentPageMap[postId] = pageNumber;  // 更新當前頁碼
+                    loadReports(postId, pageNumber);
+                });
+            paginationElement.append(pageButton);
+        }
+    }
+}
+
+        
+    </script>
+</body>
+</html>

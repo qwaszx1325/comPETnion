@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>編輯文章</title>
+    <script th:src="@{/tinymce/js/tinymce/tinymce.min.js}"></script>
+    <script th:src="@{/tinymce/langs/zh_TW.js}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <style type="text/css">
+        .twchar {
+            font-family: "Chilanka", 'Taipei Sans TC', 'Taipei Sans TW', sans-serif;
+            font-optical-sizing: auto;
+            font-weight: weight;
+            font-style: normal;
+        }
+
+        .container {
+            width: 75%;
+            margin: 0 auto;
+        }
+
+        .form-wrapper {
+            background-color: #fff;
+            padding: 10px;
+            /* Adjusted padding to reduce space */
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 1);
+            margin: 20px 0;
+        }
+
+        .form-group {
+            margin-bottom: .5rem;
+            /* Reduced bottom margin */
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: .25rem;
+            /* Reduced bottom margin */
+            text-align: left;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: .25rem;
+            /* Reduced padding to fit content closer */
+            border: 1px solid #ccc;
+            border-radius: .25rem;
+            margin-top: .25rem;
+            /* Added margin-top for spacing */
+        }
+
+        .form-group textarea {
+            resize: vertical;
+        }
+
+        .submit-btn {
+            font-family: "Chilanka", 'Taipei Sans TC', 'Taipei Sans TW', sans-serif;
+            padding: .5rem 1rem;
+            border: none;
+            border-radius: .25rem;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            display: block;
+            margin: 1rem auto 0;
+            /* Center button and add margin on top */
+        }
+
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{layout/header}"></div>
+
+    <!-- Navbar -->
+    <div class="container twchar" style="width: 75% ;  padding: 30px; max-width: 1500px; margin-left: 350px;">
+        <div th:replace="~{layout/navbarForum}"></div>
+        <br>
+        <h1 class="twchar" style="text-align: center;">編輯文章</h1>
+        <div th:text="${error} ? ${error}" style="color: red;"></div>
+        <div th:text="${success} ? ${success}" style="color: green;"></div>
+
+        <br>
+        <div class="form-wrapper twchar"style="background-color: #fdf6f0;">
+            <form id="postForm" th:action="@{/member/update}" method="post" enctype="multipart/form-data">
+                  <input type="hidden" id="postId" name="postId" th:value="${post.postId}">
+
+                     
+                <div class="form-group" >
+                    <label for="postName">文章標題：</label>
+                    <input type="text" id="postName" name="postName" th:value="${post.postName}" required>
+                </div>
+
+     
+
+
+                  <div class="form-group">
+                    <label for="themeId" class="twchar">主題類型：</label>
+                    <select id="themeId" name="themeId" class="twchar" required>
+                        <option class="twchar" value="" disabled>請選擇</option>
+                        <!-- 使用 th:selected 來選中當前文章的主題 -->
+                        <option class="twchar" th:each="theme : ${arrayList}" 
+                                th:value="${theme.themeId}" 
+                                th:text="${theme.themeName}"
+                                th:selected="${theme.themeId == post.theme.themeId}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="postContent">文章內容：</label>
+<textarea id="postContent" name="postContent" th:text="${post.postContent}"></textarea>                </div>
+
+          
+
+                <button class="submit-btn twchar" type="submit" style=" background-color: #876d5a;">上傳</button>
+            </form>
+        </div>
+    </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js" integrity="sha512-bPh3uwgU5qEMipS/VOmRqynnMXGGSRv+72H/N260MQeXZIK4PG48401Bsby9Nq5P5fz7hy5UGNmC/W1Z51h2GQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+    <script>
+     tinymce.init({
+    selector: '#postContent',
+    height: 500,
+    plugins: [
+        'advlist', 'autolink', 'lists', 'image', 'charmap', 'preview',
+        'searchreplace', 'visualblocks', 'fullscreen', 'code',
+        'help', 'wordcount'
+    ],
+    toolbar: 'undo redo | blocks | ' +
+        'bold italic backcolor | alignleft aligncenter ' +
+        'alignright alignjustify | bullist numlist outdent indent | ' +
+        'removeformat | help | image',
+    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }',
+    language_url: '/static/langs/zh_TW.js',
+    language: 'zh_TW',
+    mobile: {
+        menubar: true,
+    },
+    file_picker_types: 'image',
+    images_upload_handler: function (blobInfo, progress) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function () {
+                const base64 = reader.result;
+                resolve(base64);
+            };
+            reader.onerror = function () {
+                reject('Could not read file');
+            };
+            reader.readAsDataURL(blobInfo.blob());
+        });
+    },
+    setup: function (editor) {
+        editor.on('submit', function (e) {
+            e.preventDefault();
+            editor.uploadImages().then(function () {
+                $('#postForm').submit();
+            });
+        });
+    }
+});
+
+       
+    </script>
+</body>
+
+</html>

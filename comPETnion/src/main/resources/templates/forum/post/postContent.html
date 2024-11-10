@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<title>文章內容</title>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+<style>
+.form-control {
+	resize: none; /* 禁用手動調整大小 */
+}
+
+#reportContent {
+	height: 100px; /* 設定固定高度 */
+	resize: none; /* 禁用手動調整大小 */
+}
+
+.custom-small-btn {
+	padding: 0.25rem 0.5rem;
+	font-size: 0.875rem;
+	line-height: 1.5;
+	border-radius: 0.2rem;
+}
+
+.message-content {
+	padding: 15px;
+	margin: 10px 0;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	background-color: #f9f9f9;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.message-content p {
+	margin: 0;
+	font-size: 16px;
+	color: #333;
+}
+
+.container {
+	position: relative;
+}
+
+.post-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.edit-btn {
+	display: flex;
+	gap: 10px;
+}
+
+.edit-btn form {
+	margin: 0;
+}
+
+.shadow-card {
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 1);
+	border-radius: 10px;
+	padding: 20px;
+}
+
+.twchar {
+	font-family: "Chilanka", 'Taipei Sans TC', 'Taipei Sans TW', sans-serif;
+	font-optical-sizing: auto;
+	font-weight: weight;
+	font-style: normal;
+}
+
+article {
+  font-family: "Chilanka", 'Taipei Sans TC', 'Taipei Sans TW', sans-serif;
+	font-optical-sizing: auto;
+	font-weight: weight;
+	font-style: normal;
+}
+.swal2-popup,
+.swal2-title,
+.swal2 {
+    font-family: "TaiwanPearl-Regular" !important;
+    margin: 0 5px;
+}
+</style>
+</head>
+
+<body>
+	<div th:replace="~{layout/header}"></div>
+
+
+
+	<div class="container" >
+		<div class="mt-5 shadow-card bg-white" style="padding: 0">
+		<div>
+			<div style=" background-color: #fdf6f0; padding: 0">
+			<div>
+				<div class="post-header" style="padding-top: 15px;margin-left:20px">
+					<h1 class="page-title twchar">
+						文章名稱:
+					</h1>
+					<div  class="edit-btn post-header twchar" style="margin-right: 10px"
+						th:if="${session.member != null && post.memberId == session.member.memberId}">
+						<a th:href="@{/member/findIdByPost(id=${post.postId})}"
+							class="btn btn-success btn-sm">編輯</a>
+<form id="deletePost" method="post" th:action="@{/member/postDeleteState}">
+    <input type="hidden" name="postId" th:value="${post.postId}" />
+    <input type="button" value="刪除" onclick="confirmDeletePost()" class="btn btn-danger btn-sm" />
+</form>			</div>
+				</div>
+				<h3 th:text="${post.postName}" class="twchar" style="margin-left: 20px">文章名稱</h3>
+				<div class="post-meta">
+					<div style="  margin: 20px" class="twchar">
+						發佈日期:<a 
+							th:text="${post != null ? #dates.format(post.postDate, 'yyyy年MM月dd日') : ''}"></a>
+					</div>
+				</div>
+				<div>
+					<span th:text="${post.postViews}" style="margin-left:  20px"></span> <a class="twchar">觀看人數</a>
+				</div>
+				<hr>
+				</div>
+				</div>
+				<div class="twchar"style="margin: 20px">
+					<span  th:utext="${post.postContent}">文章內容</span>
+				</div>
+			</div>
+
+<div style=" background-color: #fdf6f0;">
+			<hr>
+<div style="margin-left: 10px">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="twchar">留言</h1>
+        <button class="btn btn-primary btn-small twchar" 
+            data-bs-toggle="modal" data-bs-target="#reportModal" type="button"
+            style="font-size: 1rem; padding-bottom: 10px; margin-right: 10px"
+            th:data-post-id="${post.postId}"
+            th:data-post-name="${post.postName}" >檢舉</button>
+               
+            
+    </div>
+</div>
+
+			<!-- Modal -->
+			<div class="modal fade twchar" id="reportModal" tabindex="-1"
+				aria-labelledby="reportModalLabel" aria-hidden="true">
+				<div class="modal-dialog twchar">
+					<div class="modal-content twchar">
+						<div class="modal-header">
+							<h5 class="modal-title twchar" id="reportModalLabel">檢舉文章</h5>
+							<button type="button" class="btn-close btn-sm"
+								data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<form th:action="@{/member/report/insert}" method="post">
+							<div class="modal-body">
+								<input type="hidden" name="postId" id="postId"
+									th:value="${postId}"> <input type="hidden"
+									name="postName" id="postName" th:value="${postName}">
+								<div class="mb-3">
+									<label for="reportContent" class="form-label">檢舉原因</label>
+									<textarea class="form-control" id="reportContent"
+										name="reportContent" style="height: 100px;" required></textarea>
+								</div>
+							</div>
+							<div class="modal-footer btn-sm">
+								     <button type="button" class="btn btn-primary submit-btn twchar" onclick="insertSampleText()">一鍵輸入</button>
+                <button class="btn btn-primary submit-btn twchar" type="submit"  onclick="showInsertPost(event)">上傳</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+
+
+
+
+
+
+
+			<div class="card ">
+			
+				<div class="card-body twchar">
+    <h5 class="card-title twchar">請輸入新訊息</h5>
+    <form th:action="@{/member/addPost}" method="post">
+        <textarea class="form-control" name="messageContent" required></textarea>
+        <input type="hidden" name="postId" th:value="${postId}" />
+        <input type="hidden" name="postName" th:value="${postName}" />
+        <br>
+        <div class="button-container" style="display: flex; gap: 10px;">
+            <input type="submit" class="btn btn-primary twchar"
+                style="font-size: 1rem; padding: 0.8rem 1.5rem; margin-top: 1rem"
+                value="送出">
+            <button type="button" class="btn btn-primary twchar" 
+                style="font-size: 1rem; padding: 0.8rem 1.5rem; margin-top: 1rem"
+                onclick="insertMessageText()">一鍵輸入</button>
+        </div>
+    </form>
+</div>						
+						<div class="card twchar"style="padding-top: 10px">
+			<div class="card-header twchar" >
+				<button class="btn btn-link twchar" type="button"
+					data-bs-toggle="collapse" data-bs-target="#collapseMessages"
+					aria-expanded="false" aria-controls="collapseMessages">
+					<h1 class="twchar" >顯示留言</h1>
+				</button>
+			</div>
+			<div id="collapseMessages" class="collapse" >
+				<div class="card-body twchar" >
+					<ul class="list-group">
+						<li class="list-group-item twchar" th:each="msg : ${messages}">
+						<h4 class="twchar" style="display: inline;">會員:</h4>
+<span th:text="${msg.memberName}" class="twchar" style="display: inline;">會員名稱</span>
+
+
+							<p class="twchar"
+								th:text="${#dates.format(msg.messageDate, 'yyyy年MM月dd日 HH:mm:ss')}">留言時間
+							</p>
+							<hr> <!-- 編輯表單(顯示) -->
+							<div th:id="'editContent-'+${msg.messagesId}">
+								<div class="message-content " id="">
+									<p class="twchar" th:text="${msg.messageContent}">留言內容</p>
+								</div>
+								<div class="edit-btn "
+									th:if="${session.member != null && msg.memberId == session.member.memberId}">
+
+
+									<button class="btn btn-success btn-sm"
+										th:onclick="'showEditForm(' + ${msg.messagesId} + ')'">編輯</button>
+
+									
+<form method="post" th:action="@{/member/updateMessageDeleteState}" id="deleteForm">
+    <input name="messagesId" th:value="${msg.messagesId}" type="hidden" />
+    <input name="postId" th:value="${post.postId}" type="hidden" />
+    <input type="button" value="刪除" class="btn btn-danger btn-sm" th:onclick="'confirmDelete(' + ${msg.messagesId} + ')'">
+</form>
+								</div>
+							</div> <!-- 編輯表單(隱藏) -->
+							<form th:id="'editForm-'+${msg.messagesId}" method="post"
+								th:action="@{/member/editMessage}" style="display: none;">
+								<textarea class="form-control" name="messageContent" required
+									th:text="${msg.messageContent}"></textarea>
+								<input type="hidden" name="messagesId"
+									th:value="${msg.messagesId}" /> <input name="postId"
+									th:value="${post.postId}" type="hidden" 
+									style="padding-bottom: 5px;"/>
+								<button type="submit" class="btn btn-primary submit-btn" style="font-size: 1rem; padding: 15px; margin-right: 1px">儲存變更</button>
+
+							</form>
+
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+	
+	<div class="footer">
+		<div th:replace="~{layout/footer}"></div>
+	</div>
+
+	<script
+		src="https://cdn.bootcdn.net/ajax/libs/Swiper/9.4.1/swiper-bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script>
+    
+    
+        function showEditForm(messageId) {
+            $('#editForm-' + messageId).show();
+            $('#editContent-' + messageId).hide();
+        }
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  var reportModal = document.getElementById('reportModal');
+  reportModal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    var postId = button.getAttribute('data-post-id');
+    var postName = button.getAttribute('data-post-name');
+    
+    var modalPostId = reportModal.querySelector('#postId');
+    var modalPostName = reportModal.querySelector('#postName');
+    
+    modalPostId.value = postId;
+    modalPostName.value = postName;
+  });
+});
+   function insertSampleText() {
+    const sampleText = "文章有不雅字";
+    document.getElementById('reportContent').value = sampleText; // 設置檢舉原因
+}
+        function insertMessageText() {
+        const message = "大大的文章寫得真好";
+        document.querySelector('textarea[name="messageContent"]').value = message;
+    }
+   function confirmDelete(messagesId) {
+    Swal.fire({
+        title: '確定要刪除嗎？',
+        text: "此操作無法撤銷！",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: '是的，刪除!',
+        cancelButtonText: '取消'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // 如果用戶確認，則提交表單
+            document.getElementById('deleteForm').submit();
+        }
+    });
+}
+    function confirmDeletePost() {
+        Swal.fire({
+            title: '確定刪除嗎?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: '是的, 刪除!',
+            cancelButtonText: '取消'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('deletePost').submit();
+            }
+        });
+    }
+    </script>
+</body>
+
+</html>

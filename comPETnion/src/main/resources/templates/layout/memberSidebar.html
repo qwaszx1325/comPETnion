@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chilanka&family=Montserrat:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Taipei+Sans+TC:300,400,500,700|Taipei+Sans+TW:300,400,500,700&display=swap">
+    <style>
+        .sidebar {
+            width: 250px;
+            background-color: #fdf6f0;
+            padding: 20px 0;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: absolute;
+            left: 60px;
+            top: 230px;
+
+        }
+
+        .sidebar a {
+            padding: 16px 20px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #41403e;
+            display: block;
+            transition: background-color 0.3s;
+        }
+
+        .accordion-body a {
+            font-size: 16px;
+            padding: 1px 30px !important;
+        }
+
+        .sidebar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        @font-face {
+            font-family: TaiwanPearl-Regular;
+            src: url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff2) format("woff2"),
+                url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff) format("woff");
+        }
+
+        .twchar {
+            font-family: "Chilanka", "TaiwanPearl-Regular", 'Taipei Sans TC', 'Taipei Sans TW' !important;
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        .twchar18px {
+            font-family: "Chilanka", "TaiwanPearl-Regular", 'Taipei Sans TC', 'Taipei Sans TW' !important;
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
+            font-size: 18px !important;
+        }
+
+        .accordion-body {
+            padding: 1px !important;
+            /* 調整內容的padding */
+            margin-bottom: 3px !important;
+            /* 調整內容間的margin */
+
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="accordion sidebar" id="accordionPanelsStayOpenExample">
+        <h4 class="twchar" style="text-align: center;">會員中心</h4>
+        <a th:href="@{/member/getmember}" class="twchar">我的帳戶資料</a>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed twchar18px" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false"
+                    aria-controls="panelsStayOpen-collapseOne">
+                    訂單相關
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                    <a class="twchar" th:href="@{/member/checkOrder}">訂單狀況</a>
+                </div>
+                <div class="accordion-body">
+                    <a class="twchar" th:href="@{/member/reviews/completedOrders}">訂單評價</a>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed twchar18px" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false"
+                    aria-controls="panelsStayOpen-collapseTwo">
+                    領養
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                    <a class="twchar" th:href="@{/member/adopt/myPetCase}">發布的案件</a>
+                </div>
+            </div>
+            <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                    <a class="twchar" th:href="@{/member/adopt/myApplication}">申請領養的案件</a>
+                </div>
+            </div>
+            <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse">
+  				<div class="accordion-body">
+   					<a class="twchar" th:href="@{/member/chatList}">聊天記錄</a>
+ 				</div>
+			</div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed twchar18px" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="false"
+                    aria-controls="panelsStayOpen-collapseThree">
+                    論壇
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                    <a class="twchar" th:href="@{/member/findAllReportById}">論壇</a>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed twchar18px" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#panelsStayOpen-collapseFour" aria-expanded="false"
+                    aria-controls="panelsStayOpen-collapseFour">
+                    活動
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseFour" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                    <a class="twchar" th:href="@{/member/holdEventList}">舉辦的活動</a>
+                </div>
+            </div>
+            <div id="panelsStayOpen-collapseFour" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                    <a class="twchar" th:href="@{/member/holdEventCancelList}">取消舉辦的活動</a>
+                </div>
+            </div>
+            <div id="panelsStayOpen-collapseFour" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                    <a class="twchar" th:href="@{/member/findEventDtoByMemberId.controller}">報名的活動</a>
+                </div>
+            </div>
+        </div>
+        <a class="twchar" th:href="@{/member/CustomerChatMessage}">聯絡客服</a>
+    </div>
+</body>
+
+</html>

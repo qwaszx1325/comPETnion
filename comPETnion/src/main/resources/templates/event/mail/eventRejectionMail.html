@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>活動審核通過通知</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .header img {
+            max-width: 100px;
+            height: auto;
+        }
+
+        .content {
+            margin: 20px 0;
+        }
+
+        .content h1 {
+            color: #333333;
+        }
+
+        .content p {
+            line-height: 1.6;
+            color: #666666;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            color: #999999;
+            font-size: 12px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #876d5a;
+            color: white !important;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        strong {
+            font-weight: bolder;
+            font-size: large;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <img src="https://i.imgur.com/M34EE1U.png" alt="Company Logo">
+
+        <div class="content">
+            <h1>活動申請審核通知</h1>
+            <p>親愛的comPETnion會員，</p>
+            <p>我們很抱歉通知您，您的活動舉辦申請<strong>未通過審核</strong>。</p>
+            <p>
+                活動編號：<strong th:text="${eventId}"></strong><br>
+                活動主題：<strong th:text="${eventSubject}"></strong>
+            </p>
+            <p>建議您檢查申請內容，並在必要時進行修改後重新提交申請。</p>
+            
+            <a th:href="@{http://localhost:8081/comPETnion/member/holdEventList}" class="button">前往會員中心，查看申請詳情</a>
+
+            <p>祝您有美好的一天！</p>
+        </div>
+        <div class="footer">
+            <p>這是一封自動產生的郵件，請勿回覆。</p>
+            <p>© 2024 comPETnion .All rights reserved.</p>
+        </div>
+    </div>
+</body>
+
+</html>

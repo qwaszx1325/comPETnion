@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>訂單明細管理</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .info-section {
+            margin-bottom: 30px;
+        }
+        .info-section p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        img {
+            max-width: 100px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="layoutSidenav">
+        <div th:replace="~{layout/dashboard}"></div>
+        <div id="layoutSidenav_content">
+            <main>
+                <div class="container">
+                    <h2>訂單明細管理</h2>
+                    <div class="info-section order-info" th:if="${orderDetails != null and !#lists.isEmpty(orderDetails)}">
+                        <p th:if="${orderDetails[0].orderId != null}">訂單編號: <span th:text="${orderDetails[0].orderId}"></span></p>
+                        <p th:if="${orderDetails[0].memberId != null}">會員編號: <span th:text="${orderDetails[0].memberId}"></span></p>
+                        <p th:if="${orderDetails[0].memberName != null}">會員名稱: <span th:text="${orderDetails[0].memberName}"></span></p>
+                    </div>
+                    <div class="info-section recipient-info" th:if="${order != null}">
+                        <p th:if="${order.recipientName != null}">收件人姓名: <span th:text="${order.recipientName}"></span></p>
+                        <p th:if="${order.phone != null}">電話: <span th:text="${order.phone}"></span></p>
+                        <p th:if="${order.address != null}">地址: <span th:text="${order.address}"></span></p>
+                        <p th:if="${order.email != null}">電子郵件: <span th:text="${order.email}"></span></p>
+                        <p th:if="${order.estimatedArrivalDate != null}">預計到貨日期: <span th:text="${#temporals.format(order.estimatedArrivalDate, 'yyyy-MM-dd')}"></span></p>
+                        <p th:if="${order.shippingCost != null}">運費: <span th:text="${order.shippingCost}"></span></p>
+                        <p th:if="${order.totalCost != null}">訂單總價: <span th:text="${order.totalCost}"></span></p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>產品編號</th>
+                                <th>數量</th>
+                                <th>成本</th>
+                                <th>產品圖片</th>
+                                <th>產品標題</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="orderDetail : ${orderDetails}">
+                                <td th:if="${orderDetail.productId != null}" th:text="${orderDetail.productId}"></td>
+                                <td th:if="${orderDetail.quantity != null}" th:text="${orderDetail.quantity}"></td>
+                                <td th:if="${orderDetail.cost != null}" th:text="${orderDetail.cost}"></td>
+                                <td th:if="${orderDetail.productId != null}"><img th:src="@{'/product/images?productId=' + ${orderDetail.productId} + '&type=main'}" alt="Product Image"></td>
+                                <td th:if="${orderDetail.productTitle != null}" th:text="${orderDetail.productTitle}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

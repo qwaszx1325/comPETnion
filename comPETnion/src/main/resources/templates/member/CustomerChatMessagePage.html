@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title class="twchar">客服對話</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="icon" th:href="@{imgs/competion_icon.png}" type="image/png">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+	<style>
+		@font-face {
+			font-family: TaiwanPearl-Regular;
+			src: url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff2) format("woff2"),
+				url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff) format("woff");
+		}
+
+		.twchar {
+			font-family: "Chilanka", "TaiwanPearl-Regular", 'Taipei Sans TC', 'Taipei Sans TW';
+			font-optical-sizing: auto;
+			font-weight: 400;
+			font-style: normal;
+		}
+
+		body {
+			font-family: Arial, sans-serif;
+			display: flex;
+			flex-direction: column;
+			height: 100vh;
+			margin: 0;
+		}
+
+		#content {
+			flex: 1;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			padding: 20px;
+		}
+
+		#chat-window {
+			width: 40%;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			background: #f9f9f9;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+			height: 80vh;
+		}
+
+		#chat-header {
+			padding: 10px;
+			border-bottom: 1px solid #ccc;
+			background: #f4f4f4;
+			font-size: 18px;
+			text-align: center;
+		}
+
+		#chat-messages {
+			flex: 1;
+			padding: 10px;
+			overflow-y: auto;
+		}
+
+		#chat-input {
+			padding: 10px;
+			border-top: 1px solid #ccc;
+			background: #f4f4f4;
+			display: flex;
+		}
+
+		#chat-input input {
+			flex: 1;
+			padding: 10px;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+		}
+
+		#chat-input button {
+			padding: 10px;
+			border: none;
+			background: #6f4e37;
+			color: white;
+			margin-left: 10px;
+			border-radius: 4px;
+		}
+
+		#chat-input button:hover {
+			background: #5a3d2b;
+		}
+
+		.chat-message {
+			padding: 10px;
+			margin: 5px 0;
+			border-radius: 5px;
+			position: relative;
+			display: block;
+			width: 100%;
+			word-wrap: break-word;
+		}
+
+		.chat-message-time {
+			font-size: 0.75em;
+			color: #666;
+			display: block;
+		}
+
+		.chat-message-right {
+			text-align: right;
+		}
+
+		.my-message {
+			text-align: right;
+		}
+
+		.notification {
+			color: red;
+			font-weight: bold;
+		}
+		.twchar p {
+		    line-height: 1;       /* 預設行高，可以改為具體的數值如 1.5 或者更小，來適應具體需求 */
+		    letter-spacing: 1px;    /* 預設字母間距，可以調整為 0px 或其他更小的數值 */
+		}
+		
+		.twchar, .twchar::placeholder {  /* 現在將字體樣式也應用於 placeholder */
+		    font-family: "TaiwanPearl-Regular", "Chilanka", 'Taipei Sans TC', 'Taipei Sans TW';
+		    font-optical-sizing: auto;
+		    font-weight: 400;
+		    font-style: normal;
+		}
+
+		input.twchar { /* 確保 input 元素也使用相同的字體樣式 */
+		    font-family: inherit;
+		    font-weight: inherit;
+		    font-style: inherit;
+		}
+	</style>
+</head>
+
+<body>
+	<div th:replace="~{layout/header}"></div>
+	<div th:replace="~{layout/memberSidebar}"></div>
+	<div id="content">
+		<div id="chat-window">
+			<p id="chat-header" class="twchar" data-current-chat-user-id="">客服中心</p>
+			<div id="chat-messages"></div>
+			<div id="chat-input">
+				<input type="text" id="messageContent" class="twchar" placeholder="輸入消息">
+				<button id="sendButton" class="twchar">發送</button>
+			</div>
+		</div>
+	</div>
+
+	<div th:replace="~{layout/footer}"></div>
+
+	<input type="hidden" class="memberId" th:value="${session.member.memberId}">
+
+	<input type="hidden" class="memberName" th:value="${session.member.memberName}">
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			const memberId = document.querySelector('.memberId').value;  // 獲取當前用戶ID
+			const memberName = document.querySelector('.memberName').value;
+			let stompClient = null;
+			let subscription = null;
+
+			function connect() {
+				const socket = new SockJS('/comPETnion/ws');
+				stompClient = Stomp.over(socket);
+
+				stompClient.connect({}, function (frame) {
+					console.log('Connected: ' + frame);
+
+					subscription = stompClient.subscribe('/comPETnion/topic/customer-service/messages/' + memberId, function (message) {
+						showMessage(JSON.parse(message.body));
+					});
+
+					axios.get('/comPETnion/api/chat-history', {
+						params: {
+							senderId: memberId,
+							recipientId: 'admin'
+						}
+					})
+						.then(function (response) {
+							response.data.forEach(showMessage);
+						})
+						.catch(function (error) {
+							console.error("獲取聊天記錄時出錯", error);
+						});
+				});
+			}
+
+			function showMessage(message) {
+				const messagesDiv = document.getElementById('chat-messages');
+				const messageElement = document.createElement('p');
+				const messageTime = document.createElement('p');
+
+				messageElement.className = 'chat-message twchar';
+				messageTime.className = 'chat-message-time twchar';
+				messageTime.textContent = new Date(message.timestamp).toLocaleString();
+
+				messageElement.appendChild(messageTime);
+
+				if (message.senderId === memberId) {
+					messageElement.classList.add('my-message');
+					messageElement.innerHTML += `<p class="twchar">${message.content}</p>`;
+				} else {
+					messageElement.classList.add('other-message');
+					messageElement.innerHTML += `<p class="twchar">${message.senderId}: ${message.content}</p>`;
+				}
+
+				messagesDiv.appendChild(messageElement);
+				messagesDiv.scrollTop = messagesDiv.scrollHeight;
+			}
+
+			function sendMessage() {
+				const content = document.getElementById('messageContent').value;
+
+				if (!content) {
+					alert('消息內容不能為空');
+					return;
+				}
+
+				const chatMessage = {
+					senderId: memberId,
+					senderName: memberName,
+					recipientId: 'admin',
+					recipientName: 'admin',
+					content: content,
+					timestamp: new Date()
+				};
+
+				stompClient.send("/comPETnion/app/customer-service/chat", {}, JSON.stringify(chatMessage));
+				document.getElementById('messageContent').value = '';
+			}
+
+			document.getElementById('sendButton').addEventListener('click', sendMessage);
+
+			connect();
+		});
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/" lang="zh-Hant">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Index Single Product</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="icon" th:href="@{imgs/competion_icon.png}" type="image/png">
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+		}
+
+		.container-2 {
+			max-width: 1200px;
+			margin: 20px auto;
+			padding: 20px;
+		}
+
+		.product-detail {
+			display: flex;
+			flex-wrap: wrap;
+		}
+
+		.product-detail .image-section {
+			flex: 1;
+			padding: 20px;
+		}
+
+		.product-detail .info-section {
+			flex: 1;
+			padding: 20px;
+		}
+
+		.product-detail img {
+			max-width: 100%;
+			height: auto;
+			display: block;
+			margin-bottom: 20px;
+		}
+
+		.product-detail h1 {
+			font-size: 24px;
+			margin-bottom: 20px;
+		}
+
+		.product-detail .price {
+			color: #d4a373;
+			font-size: 24px;
+			margin-bottom: 20px;
+		}
+
+		.product-detail .description {
+			font-size: 16px;
+			margin-bottom: 20px;
+		}
+
+		.product-detail .btn {
+			background-color: #d4a373;
+			color: white;
+			border: none;
+			padding: 10px 20px;
+			border-radius: 5px;
+			margin-right: 10px;
+		}
+
+		.product-detail .btn:hover {
+			background-color: #b4885b;
+		}
+
+		.product-thumbnails {
+			display: flex;
+			gap: 10px;
+		}
+
+		.product-thumbnails img {
+			width: 60px;
+			height: 60px;
+			object-fit: cover;
+			cursor: pointer;
+			border: 1px solid #ddd;
+		}
+
+		.product-thumbnails img:hover {
+			border-color: #d4a373;
+		}
+
+		.twchar {
+			font-family: "Chilanka", 'Taipei Sans TC', 'Taipei Sans TW', sans-serif;
+			font-optical-sizing: auto;
+			font-weight: weight;
+			font-style: normal;
+		}
+
+		.quantity-selector {
+			display: flex;
+			align-items: center;
+			margin-bottom: 20px;
+		}
+
+		.quantity-selector input {
+			width: 50px;
+			text-align: center;
+			border: 1px solid #ddd;
+			margin: 0 10px;
+		}
+
+		.btn-container {
+			display: flex;
+			gap: 10px;
+			margin-top: 10px;
+		}
+
+		/* 評價部分的樣式 */
+		.reviews-section {
+			margin-top: 40px;
+			border-top: 1px solid #ddd;
+			padding-top: 20px;
+		}
+
+		.review-item {
+			margin-bottom: 20px;
+			border-bottom: 1px solid #eee;
+			padding-bottom: 10px;
+		}
+
+		.review-header {
+			display: flex;
+			justify-content: space-between;
+			margin-bottom: 10px;
+		}
+
+		.review-rating {
+			color: #d4a373;
+		}
+
+		/* 平均評分的樣式 */
+		.average-rating {
+			font-size: 18px;
+			margin-bottom: 10px;
+			display: flex;
+			align-items: center;
+		}
+
+		.average-rating .stars {
+			color: #d4a373;
+			margin-right: 10px;
+		}
+		.image-section {
+		    flex: 1;
+		    padding: 20px;
+		    display: flex;
+		    flex-direction: column;
+		    align-items: center;
+		}
+
+		.main-image-container {
+		    width: 100%;
+		    height: 400px; /* 調整這個值來改變主圖的高度 */
+		    display: flex;
+		    justify-content: center;
+		    align-items: center;
+		    overflow: hidden;
+		    margin-bottom: 20px;
+		}
+
+		.main-image-container img {
+		    max-width: 100%;
+		    max-height: 100%;
+		    object-fit: contain;
+		}
+
+		.product-thumbnails {
+		    display: flex;
+		    gap: 10px;
+		    justify-content: center;
+		    flex-wrap: wrap;
+		}
+
+		.product-thumbnails img {
+		    width: 60px;
+		    height: 60px;
+		    object-fit: cover;
+		    cursor: pointer;
+		    border: 1px solid #ddd;
+		    transition: border-color 0.3s ease;
+		}
+
+		.product-thumbnails img:hover,
+		.product-thumbnails img.active {
+		    border-color: #d4a373;
+		}
+
+		.product-detail {
+		    display: flex;
+		    flex-wrap: wrap;
+		    gap: 20px;
+		}
+
+		.info-section {
+		    flex: 1;
+		    padding: 20px;
+		}
+
+		@media (max-width: 768px) {
+		    .product-detail {
+		        flex-direction: column;
+		    }
+		    
+		    .image-section,
+		    .info-section {
+		        width: 100%;
+		    }
+		}
+		
+		.swal2-popup,
+        .swal2-title{
+    		font-family: "Chilanka" !important;
+		}
+	</style>
+</head>
+
+<body>
+    <div th:replace="~{layout/header}"></div>
+    <div class="container-2">
+        <div class="product-detail">
+            <div class="image-section">
+                <div class="main-image-container">
+                    <img id="mainImage" th:src="@{'/product/images?productId=' + ${product.productID} + '&type=main'}" alt="Product Image">
+                </div>
+                <div class="product-thumbnails twchar">
+                    <img th:src="@{'/product/images?productId=' + ${product.productID} + '&type=main'}" alt="主圖" onclick="changeImage(this)" class="thumbnail active">
+                    <img th:if="${product.productImage1 != null}" th:src="@{'/product/images?productId=' + ${product.productID} + '&type=image1'}" alt="副圖1" onclick="changeImage(this)" class="thumbnail">
+                    <img th:if="${product.productImage2 != null}" th:src="@{'/product/images?productId=' + ${product.productID} + '&type=image2'}" alt="副圖2" onclick="changeImage(this)" class="thumbnail">
+                    <img th:if="${product.productImage3 != null}" th:src="@{'/product/images?productId=' + ${product.productID} + '&type=image3'}" alt="副圖3" onclick="changeImage(this)" class="thumbnail">
+                    <img th:if="${product.productImage4 != null}" th:src="@{'/product/images?productId=' + ${product.productID} + '&type=image4'}" alt="副圖4" onclick="changeImage(this)" class="thumbnail">
+                </div>
+            </div>
+            <div class="info-section">
+                <h1 class="twchar" th:text="${product.productTitle}">Product Title</h1>
+                <div class="price twchar" th:text="${product.productPrice} + ' 元'">Price</div>
+                
+                <!-- 平均評分顯示 -->
+                <div class="average-rating twchar" th:if="${averageRating != null}">
+                    <span class="stars" th:text="${'★'.repeat(averageRating.intValue()) + '☆'.repeat(5 - averageRating.intValue())}">★★★★★</span>
+                    <span th:text="${#numbers.formatDecimal(averageRating, 1, 1)} + ' / 5 '">5.0 / 5 </span>
+                    <span th:text="'  (' + ${reviewByProductId.size()} + ' 則評價)'"></span>
+                </div>
+                
+                <input type="hidden" id="productId" th:value="${product.productID}">
+                <input type="hidden" id="memberId" th:value="${memberId}">
+                <div class="description twchar" th:text="${product.productDesc}">Product Description</div>
+                <div class="quantity-selector">
+                    <button type="button" onclick="decrementQuantity()">-</button>
+                    <input type="text" id="quantity" value="1" readonly>
+                    <button type="button" onclick="incrementQuantity()">+</button>
+                </div>
+                <div class="btn-container">
+                    <form id="cartForm" th:action="@{/member/shoopingCart}" method="post">
+                        <input type="hidden" name="productId" id="formProductId" value="">
+                        <input type="hidden" name="quantity" id="formQuantity" value="">
+                        <button type="button" class="btn twchar" onclick="submitForm()">購買</button>
+                    </form>
+                
+                    <button type="button" class="btn cartBtn twchar">加入購物車</button>
+                    
+                    <button type="button" class="btn favoriteBtn twchar">加入最愛</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 評價部分 -->
+        <div class="reviews-section twchar">
+            <h2 class="twchar">商品評價</h2>
+            
+            <div th:if="${reviewByProductId != null and !reviewByProductId.isEmpty()}">
+                <div th:each="review : ${reviewByProductId}" class="review-item">
+                    <div class="review-header">
+                        <span th:text="${'用戶 ' + review.memberName}">用戶 ID</span>
+                        <span class="review-rating" th:text="${'★'.repeat(review.rating) + '☆'.repeat(5 - review.rating)}">評分</span>
+                    </div>
+                    <p th:text="${review.comment}">評價內容</p>
+                    <small th:text="${#temporals.format(review.createdDate, 'yyyy-MM-dd HH:mm')}">評價時間</small>
+                </div>
+            </div>
+            <div th:if="${reviewByProductId == null or reviewByProductId.isEmpty()}">
+                <p>目前還沒有評價。</p>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{layout/footer}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const cartBtn = document.querySelector('.cartBtn')
+        cartBtn.addEventListener('click', (event) => {
+            const productId = document.querySelector('#productId').value;
+            const quantity = document.querySelector('#quantity').value;
+            const url = '/comPETnion/member/addShoppingCart';
+            axios({
+                method: 'post',
+                url: url,
+                data: {
+                    productId: productId,
+                    quantity: quantity
+                }
+            })
+            .then(res => {
+                var shoppingCartQuantity = document.querySelector('.shoppingCartQuantity');
+                var shoppingCartQuantityRWD = document.querySelector('.shoppingCartQuantityRWD');
+                shoppingCartQuantity.textContent = res.data;
+                shoppingCartQuantityRWD.textContent = res.data;
+            })
+            .catch(err => {
+                console.log(err);
+            })
+        })
+        
+        const favoriteBtn = document.querySelector('.favoriteBtn');
+        favoriteBtn.addEventListener('click', (event) => {
+            const productId = document.querySelector('#productId').value;
+            axios.post('/comPETnion/member/addFavorite', {
+                productId: productId
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '已加入我的最愛',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            })
+            .catch(error => {
+                if (error.response && error.response.status === 401) {
+                    window.location.href = error.response.data; // 這裡進行重定向
+                } else {
+                    console.error(error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: '發生錯誤',
+                        text: '請稍後再試'
+                    });
+                }
+            });
+        });
+
+        function changeImage(element) {
+            if (element && element.src) {
+                var mainImage = document.getElementById("mainImage");
+                mainImage.src = element.src;
+                
+                // 更新縮略圖的激活狀態
+                var thumbnails = document.querySelectorAll('.product-thumbnails .thumbnail');
+                thumbnails.forEach(thumb => {
+                    thumb.classList.remove('active');
+                });
+                element.classList.add('active');
+            }
+        }
+
+        function decrementQuantity() {
+            var quantityInput = document.getElementById("quantity");
+            var currentQuantity = parseInt(quantityInput.value);
+            if (currentQuantity > 1) {
+                quantityInput.value = currentQuantity - 1;
+            }
+        }
+
+        function incrementQuantity() {
+            var quantityInput = document.getElementById("quantity");
+            var currentQuantity = parseInt(quantityInput.value);
+            quantityInput.value = currentQuantity + 1;
+        }
+
+        function submitForm() {
+            var productId = document.getElementById("productId").value;
+            var quantity = document.getElementById("quantity").value;
+            document.getElementById("formProductId").value = productId;
+            document.getElementById("formQuantity").value = quantity;
+            document.getElementById("cartForm").submit();
+        }
+    </script>
+
+</body>
+
+</html>

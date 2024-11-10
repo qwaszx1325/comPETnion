@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+    <link th:href="@{/css/adopt/searchpage.css}" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.11.0/dist/sweetalert2.min.css" rel="stylesheet">
+
+    <title>更新案件資料</title>
+    <style>
+        .twchar {
+            font-family: "Chilanka", "TaiwanPearl-Regular", 'Taipei Sans TC', 'Taipei Sans TW';
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: TaiwanPearl-Regular;
+            src: url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff2) format("woff2"),
+                url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff) format("woff");
+        }
+
+        .container-update {
+            background-color: #e7d7cc;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 800px;
+            margin: 40px auto;
+        }
+
+        h2 {
+            color: #4a90e2;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #4a90e2;
+            outline: none;
+        }
+
+        input[type="file"] {
+            margin-top: 5px;
+        }
+
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        input[type="submit"],
+        input[type="button"] {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        input[type="button"] {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        input[type="button"]:hover {
+            background-color: #e0e0e0;
+        }
+
+        .photo-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .pet-photo {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .swal2-popup,
+        .swal2-title {
+            font-family: "Chilanka" !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{layout/header}"></div>
+    <div class="container-update twchar">
+        <form th:action="@{/member/adopt/editResult}" method="post" enctype="multipart/form-data" id="adoptForm">
+            <input type="hidden" name="_method" value="PUT">
+            <h2 class="twchar">更新案件資料</h2>
+
+            <div>
+                <input type="hidden" name="memberId" th:value="${session.member.memberId}">
+                <!-- <input type="hidden" name="memberId" value=""> -->
+            </div>
+            <div>
+                <input type="hidden" name="petCaseId" th:value="${adoptions.petCaseId}">
+            </div>
+
+            <div class="form-group">
+                <label for="petPhoto">當前顯示照片：</label>
+                <div class="photo-container" th:if="${adoptions.petPhoto != null}">
+                    <div th:each="photo : ${adoptions.petPhoto}" class="photo-item">
+                        <img th:src="@{/adopt/api/showPhoto(id=${photo.id})}" alt="寵物照片" class="pet-photo"><br>
+                        <input type="checkbox" name="deletePhotoIds" th:value="${photo.id}"> 刪除
+                    </div>
+                </div>
+                <div>
+                    <label>新增照片：</label>
+                    <input type="file" name="petPhoto" id="petPhoto" accept=".jpg, .png, .jpeg, .webp" multiple>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="petName">小名：</label>
+                <input type="text" name="petName" id="petName" th:value="${adoptions.petName}">
+            </div>
+            <div class="form-group">
+                <label for="petCity">所在縣市：</label>
+                <select name="petCity" id="petCity">
+                    <option value="基隆市" th:selected="${adoptions.petCity == '基隆市'}">基隆市</option>
+                    <option value="台北市" th:selected="${adoptions.petCity == '台北市'}">台北市</option>
+                    <option value="新北市" th:selected="${adoptions.petCity == '新北市'}">新北市</option>
+                    <option value="桃園市" th:selected="${adoptions.petCity == '桃園市'}">桃園市</option>
+                    <option value="新竹市" th:selected="${adoptions.petCity == '新竹市'}">新竹市</option>
+                    <option value="新竹縣" th:selected="${adoptions.petCity == '新竹縣'}">新竹縣</option>
+                    <option value="宜蘭縣" th:selected="${adoptions.petCity == '宜蘭縣'}">宜蘭縣</option>
+                    <option value="苗栗縣" th:selected="${adoptions.petCity == '苗栗縣'}">苗栗縣</option>
+                    <option value="台中市" th:selected="${adoptions.petCity == '台中市'}">台中市</option>
+                    <option value="彰化縣" th:selected="${adoptions.petCity == '彰化縣'}">彰化縣</option>
+                    <option value="南投縣" th:selected="${adoptions.petCity == '南投縣'}">南投縣</option>
+                    <option value="雲林縣" th:selected="${adoptions.petCity == '雲林縣'}">雲林縣</option>
+                    <option value="嘉義市" th:selected="${adoptions.petCity == '嘉義市'}">嘉義市</option>
+                    <option value="嘉義縣" th:selected="${adoptions.petCity == '嘉義縣'}">嘉義縣</option>
+                    <option value="台南市" th:selected="${adoptions.petCity == '台南市'}">台南市</option>
+                    <option value="高雄市" th:selected="${adoptions.petCity == '高雄市'}">高雄市</option>
+                    <option value="屏東縣" th:selected="${adoptions.petCity == '屏東縣'}">屏東縣</option>
+                    <option value="花蓮縣" th:selected="${adoptions.petCity == '花蓮縣'}">花蓮縣</option>
+                    <option value="台東縣" th:selected="${adoptions.petCity == '台東縣'}">台東縣</option>
+                    <option value="澎湖縣" th:selected="${adoptions.petCity == '澎湖縣'}">澎湖縣</option>
+                    <option value="金門縣" th:selected="${adoptions.petCity == '金門縣'}">金門縣</option>
+                    <option value="連江縣" th:selected="${adoptions.petCity == '連江縣'}">連江縣</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="petDistrict">選擇區域：</label>
+                <select id="petDistrict" name="petDistrict">
+                    <option value="">請選擇區域</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="petKind">種類：</label>
+                <select name="petKind" id="petKind">
+                    <option value="貓咪" th:selected="${adoptions.petKind == '貓咪'}">貓咪</option>
+                    <option value="狗狗" th:selected="${adoptions.petKind == '狗狗'}">狗狗</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="petBreed">品種：</label>
+                <input type="text" name="petBreed" id="petBreed" th:value="${adoptions.petBreed}">
+            </div>
+            <div class="form-group">
+                <label for="petColour">毛色：</label>
+                <input type="text" name="petColour" id="petColour" th:value="${adoptions.petColour}">
+            </div>
+            <div class="form-group">
+                <label>性別：</label>
+                <input type="radio" name="petSex" id="male" value="公" th:checked="${adoptions.petSex == '公'}">公
+                <input type="radio" name="petSex" id="female" value="母" th:checked="${adoptions.petSex == '母'}">母
+            </div>
+            <div class="form-group">
+                <label>體型：</label>
+                <input type="radio" name="petBodyType" id="large" value="大型"
+                    th:checked="${adoptions.petBodyType == '大型'}">大型
+                <input type="radio" name="petBodyType" id="medium" value="中型"
+                    th:checked="${adoptions.petBodyType == '中型'}">中型
+                <input type="radio" name="petBodyType" id="small" value="小型"
+                    th:checked="${adoptions.petBodyType == '小型'}">小型
+            </div>
+            <div class="form-group">
+                <label for="petAge">年紀：</label>
+                <input type="text" name="petAge" id="petAge" th:value="${adoptions.petAge}">
+            </div>
+            <div class="form-group">
+                <label for="medicalRecord">醫療紀錄：</label>
+                <textarea name="medicalRecord" id="medicalRecord" rows="5" cols="50"
+                    th:text="${adoptions.medicalRecord}" style="resize:none"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="petDescription">寵物描述：</label>
+                <textarea name="petDescription" id="petDescription" rows="5" cols="50"
+                    th:text="${adoptions.petDescription}" style="resize:none"></textarea>
+            </div>
+            <div>
+                <input type="hidden" name="caseStatus" th:value="${adoptions.caseStatus}">
+            </div>
+
+            <div class="form-group button-group">
+                <input type="submit" class="btn btn-success" value="確認更新">
+                <input type="button" class="back btn btn-secondary" value="取消">
+            </div>
+        </form>
+    </div>
+    <div th:replace="~{layout/footer}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.11.0/dist/sweetalert2.all.min.js"></script>
+    <script th:inline="javascript">
+        const backpage = document.querySelector(".back");
+        backpage.onclick = function () {
+            window.history.back();
+        }
+
+        const adoptForm = document.querySelector("#adoptForm");
+        adoptForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const deletePhoto = document.querySelectorAll('input[name="deletePhotoIds"]:checked');
+            const deleteCounts = deletePhoto.length;
+
+            Swal.fire({
+                title: "確定更新當筆資料？",
+                text: deleteCounts > 0 ? `將刪除 ${deleteCounts} 張照片` : "",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "確定",
+                cancelButtonText: "取消"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    event.target.submit();
+                }
+            });
+        });
+
+        const districtData = {
+            "基隆市": ["仁愛區", "信義區", "中正區", "中山區", "安樂區", "暖暖區", "七堵區"],
+            "台北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"],
+            "新北市": ["板橋區", "新莊區", "中和區", "永和區", "土城區", "樹林區", "三峽區", "鶯歌區", "三重區", "蘆洲區", "五股區", "泰山區", "林口區", "八里區", "淡水區", "三芝區", "石門區", "金山區", "萬里區", "汐止區", "瑞芳區", "貢寮區", "平溪區", "雙溪區", "新店區", "深坑區", "石碇區", "坪林區", "烏來區"],
+            "桃園市": ["桃園區", "中壢區", "平鎮區", "八德區", "楊梅區", "蘆竹區", "大溪區", "龍潭區", "龜山區", "大園區", "觀音區", "新屋區", "復興區"],
+            "新竹市": ["東區", "北區", "香山區"],
+            "新竹縣": ["竹北市", "竹東鎮", "新埔鎮", "關西鎮", "湖口鄉", "新豐鄉", "芎林鄉", "橫山鄉", "北埔鄉", "寶山鄉", "峨眉鄉", "尖石鄉", "五峰鄉"],
+            "宜蘭縣": ["宜蘭市", "羅東鎮", "蘇澳鎮", "頭城鎮", "礁溪鄉", "壯圍鄉", "員山鄉", "冬山鄉", "五結鄉", "三星鄉", "大同鄉", "南澳鄉"],
+            "苗栗縣": ["苗栗市", "通霄鎮", "苑裡鎮", "竹南鎮", "頭份市", "後龍鎮", "卓蘭鎮", "大湖鄉", "公館鄉", "銅鑼鄉", "南庄鄉", "頭屋鄉", "三義鄉", "西湖鄉", "造橋鄉", "三灣鄉", "獅潭鄉", "泰安鄉"],
+            "台中市": ["中區", "東區", "南區", "西區", "北區", "北屯區", "西屯區", "南屯區", "太平區", "大里區", "霧峰區", "烏日區", "豐原區", "后里區", "石岡區", "東勢區", "和平區", "新社區", "潭子區", "大雅區", "神岡區", "大肚區", "沙鹿區", "龍井區", "梧棲區", "清水區", "大甲區", "外埔區", "大安區"],
+            "彰化縣": ["彰化市", "鹿港鎮", "和美鎮", "線西鄉", "伸港鄉", "福興鄉", "秀水鄉", "花壇鄉", "芬園鄉", "員林市", "溪湖鎮", "田中鎮", "大村鄉", "埔鹽鄉", "埔心鄉", "永靖鄉", "社頭鄉", "二水鄉", "北斗鎮", "二林鎮", "田尾鄉", "埤頭鄉", "溪州鄉", "竹塘鄉", "大城鄉", "芳苑鄉", "二林鎮", "埤頭鄉", "溪州鄉"],
+            "南投縣": ["南投市", "埔里鎮", "草屯鎮", "竹山鎮", "集集鎮", "名間鄉", "鹿谷鄉", "中寮鄉", "魚池鄉", "國姓鄉", "水里鄉", "信義鄉", "仁愛鄉"],
+            "雲林縣": ["斗六市", "斗南鎮", "虎尾鎮", "西螺鎮", "土庫鎮", "北港鎮", "莿桐鄉", "林內鄉", "古坑鄉", "大埤鄉", "崙背鄉", "二崙鄉", "麥寮鄉", "臺西鄉", "東勢鄉", "褒忠鄉", "四湖鄉", "口湖鄉", "水林鄉"],
+            "嘉義市": ["東區", "西區"],
+            "嘉義縣": ["太保市", "朴子市", "布袋鎮", "大林鎮", "民雄鄉", "溪口鄉", "新港鄉", "六腳鄉", "東石鄉", "義竹鄉", "鹿草鄉", "水上鄉", "中埔鄉", "竹崎鄉", "梅山鄉", "番路鄉", "大埔鄉", "阿里山鄉"],
+            "台南市": ["中西區", "東區", "南區", "北區", "安平區", "安南區", "永康區", "歸仁區", "新化區", "左鎮區", "玉井區", "楠西區", "南化區", "仁德區", "關廟區", "龍崎區", "官田區", "麻豆區", "佳里區", "西港區", "七股區", "將軍區", "學甲區", "北門區", "新營區", "後壁區", "白河區", "東山區", "六甲區", "下營區", "柳營區", "鹽水區", "善化區", "大內區", "山上區", "新市區", "安定區"],
+            "高雄市": ["新興區", "前金區", "苓雅區", "鹽埕區", "鼓山區", "旗津區", "前鎮區", "三民區", "楠梓區", "小港區", "左營區", "仁武區", "大社區", "岡山區", "路竹區", "阿蓮區", "田寮區", "燕巢區", "橋頭區", "梓官區", "彌陀區", "永安區", "湖內區", "鳳山區", "大寮區", "林園區", "鳥松區", "大樹區", "旗山區", "美濃區", "六龜區", "內門區", "杉林區", "甲仙區", "桃源區", "那瑪夏區", "茂林區", "茄萣區"],
+            "屏東縣": ["屏東市", "潮州鎮", "東港鎮", "恆春鎮", "萬丹鄉", "長治鄉", "麟洛鄉", "九如鄉", "里港鄉", "鹽埔鄉", "高樹鄉", "萬巒鄉", "內埔鄉", "竹田鄉", "新埤鄉", "枋寮鄉", "新園鄉", "崁頂鄉", "林邊鄉", "南州鄉", "佳冬鄉", "琉球鄉", "車城鄉", "滿州鄉", "枋山鄉", "霧台鄉", "瑪家鄉", "泰武鄉", "來義鄉", "春日鄉", "獅子鄉", "牡丹鄉", "三地門鄉"],
+            "台東縣": ["台東市", "成功鎮", "關山鎮", "卑南鄉", "鹿野鄉", "池上鄉", "東河鄉", "長濱鄉", "太麻里鄉", "大武鄉", "綠島鄉", "海端鄉", "延平鄉", "金峰鄉", "達仁鄉", "蘭嶼鄉"],
+            "花蓮縣": ["花蓮市", "鳳林鎮", "玉里鎮", "新城鄉", "吉安鄉", "壽豐鄉", "光復鄉", "豐濱鄉", "瑞穗鄉", "富里鄉", "秀林鄉", "萬榮鄉", "卓溪鄉"],
+            "澎湖縣": ["馬公市", "湖西鄉", "白沙鄉", "西嶼鄉", "望安鄉", "七美鄉"],
+            "金門縣": ["金城鎮", "金湖鎮", "金沙鎮", "金寧鄉", "烈嶼鄉", "烏坵鄉"],
+            "連江縣": ["南竿鄉", "北竿鄉", "莒光鄉", "東引鄉"]
+        };
+
+        const citySelect = document.querySelector('#petCity');
+        const districtSelect = document.querySelector('#petDistrict');
+
+        citySelect.addEventListener('change', function () {
+            const city = this.value;
+            districtSelect.innerHTML = '<option value="">請選擇區域</option>';
+
+            if (city !== "") {
+                const districts = districtData[city];
+                districts.forEach(function (district) {
+                    const option = document.createElement('option');
+                    option.value = district;
+                    option.textContent = district;
+                    districtSelect.appendChild(option);
+                });
+            }
+        });
+
+        // 預設選取案件資料中的縣市和區域
+        const existingCity = /*[[${adoptions.petCity}]]*/ "";
+        const existingDistrict = /*[[${adoptions.petDistrict}]]*/ "";
+
+        if (existingCity) {
+            citySelect.value = existingCity;
+            const event = new Event('change');
+            citySelect.dispatchEvent(event);
+
+            if (existingDistrict) {
+                setTimeout(() => {
+                    districtSelect.value = existingDistrict;
+                }, 0);
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/">
+
+<head>
+	<title>會員登入/註冊頁面</title>
+	<script>
+
+		function recaptchaCallback() {
+			console.log('reCAPTCHA callback triggered');
+			updateRegisterButtonState();
+		}
+
+		function updateRegisterButtonState() {
+			// 這個函數的實現將在 body script 中
+		}
+
+	</script>
+	<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/Swiper/9.4.1/swiper-bundle.min.css" />
+
+<link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0-alpha3/css/bootstrap.min.css" rel="stylesheet"
+	integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+
+<link rel="stylesheet" type="text/css" href="css/vendor.css">
+<link rel="stylesheet" type="text/css" href="style.css">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chilanka&family=Montserrat:wght@300;400;500&display=swap"
+	rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+<style>
+	.twchar {
+		font-family: "Chilanka", "TaiwanPearl-Regular", 'Taipei Sans TC',
+			'Taipei Sans TW';
+		font-optical-sizing: auto;
+		font-weight: 400;
+		font-style: normal;
+	}
+
+	input::placeholder {
+		font-family: "Chilanka", 'Taipei Sans TC', 'Taipei Sans TW', sans-serif;
+		font-optical-sizing: auto;
+		font-weight: weight;
+		font-style: normal;
+	}
+
+	.swal2-popup,
+	.swal2-title {
+		font-family: "Chilanka" !important;
+	}
+
+	select#location {
+		font-family: "Chilanka", 'Taipei Sans TC', 'Taipei Sans TW', sans-serif;
+		font-optical-sizing: auto;
+		font-weight: normal;
+		font-style: normal;
+		height: 2.5em;
+		/* 可以根據需要調整 */
+		margin-top: 10px;
+	}
+
+	.error-message {
+		color: red
+	}
+
+	@font-face {
+		font-family: TaiwanPearl-Regular;
+		src:
+			url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff2) format("woff2"),
+			url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff) format("woff");
+	}
+
+	.required-text {
+		color: red;
+	}
+</style>
+
+
+<body>
+	<div th:replace="~{layout/header}"></div>
+	<section id="banner" class="py-3" style="background: #F9F3EC;">
+		<div class="container">
+			<div class="hero-content py-5 my-3">
+				<h2 class="display-1 mt-3 mb-0">Account</h2>
+				<nav class="breadcrumb">
+					<a class="breadcrumb-item nav-link" href="#">Home</a> <a class="breadcrumb-item nav-link" href="#">Pages</a>
+					<span class="breadcrumb-item active" aria-current="page">Account</span>
+				</nav>
+			</div>
+		</div>
+	</section>
+
+	<section class="login-tabs padding-large">
+		<div class="container my-5 py-5">
+			<div class="row">
+				<div class="tabs-listing">
+					<nav>
+						<div class="nav nav-tabs d-flex justify-content-center border-dark-subtle mb-3" id="nav-tab" role="tablist">
+							<button class="nav-link mx-3 fs-3 border-bottom border-dark-subtle border-0 text-uppercase active twchar"
+								id="nav-sign-in-tab" data-bs-toggle="tab" data-bs-target="#nav-sign-in" type="button" role="tab"
+								aria-controls="nav-sign-in" aria-selected="true">登入</button>
+							<button class="nav-link mx-3 fs-3 border-bottom border-dark-subtle border-0 text-uppercase twchar"
+								id="nav-register-tab" data-bs-toggle="tab" data-bs-target="#nav-register" type="button" role="tab"
+								aria-controls="nav-register" aria-selected="false">註冊</button>
+						</div>
+					</nav>
+					<div class="tab-content" id="nav-tabContent">
+						<div class="tab-pane fade active show" id="nav-sign-in" role="tabpanel" aria-labelledby="nav-sign-in-tab">
+							<div class="col-lg-8 offset-lg-2 mt-5">
+
+								<p class="mb-0 twchar">用Google帳號登入</p>
+								<hr class="my-1">
+								<div class="row mt-4 mb-5">
+									<div class="d-grid col-md-6 my-2">
+
+
+										<a th:href="@{/public/google-login}"
+											class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1 ">
+											<div class="d-flex flex-wrap justify-content-center">
+												<iconify-icon icon="ion:logo-google" class="signup-social-icon me-2 twchar"></iconify-icon>
+												<p class="mb-0">Google</p>
+											</div>
+										</a>
+
+
+									</div>
+
+								</div>
+
+
+								<p class="mb-0 twchar">用帳號登入</p>
+								<hr class="my-1">
+
+								<form th:action="@{/public/login}" method="post" id="form2" class="form-group flex-wrap ">
+									<div class="form-input col-lg-12 my-4">
+
+										<input type="email" id="exampleInputEmail1" name="memberEmail" required placeholder="請輸入電子信箱"
+											class="form-control mb-3 p-4">
+
+										<input type="password" id="inputPassword1" placeholder="請輸入密碼" class="form-control mb-3 p-4"
+											aria-describedby="passwordHelpBlock" name="memberPassword" required> <label
+											class="py-3 d-flex flex-wrap justify-content-between">
+
+											<!-- 顯示錯誤消息 -->
+											<div th:if="${alertLogin == 'failure' or alertLogin == 'blocked'}"
+												style="color: red; margin-bottom: 15px;">
+												<p th:text="${errorMessage}" class="twchar"></p>
+											</div>
+
+											<div id="passwordHelpBlock" class="form-text ">
+												<a th:href="@{/public/forgot/password}" class="text-primary  fw-bold twchar"> 忘記密碼?</a>
+											</div>
+										</label>
+										<div class="d-grid my-3">
+											<!-- <a href="#" class="btn btn-dark btn-lg rounded-1">登入</a> -->
+											<button type="submit" class="btn btn-primary twchar">提交</button>
+										</div>
+									</div>
+
+								</form>
+								<button id="memberClick" class="btn btn-primary twchar">會員一鍵登入</button>
+								<button id="passwordclick" class="btn btn-primary twchar">忘記密碼登入</button>
+							</div>
+
+						</div>
+						<div class="tab-pane fade" id="nav-register" role="tabpanel" aria-labelledby="nav-register-tab">
+							<div class="col-lg-8 offset-lg-2 mt-5">
+
+								<p class="mb-0 twchar">用Google註冊</p>
+								<hr class="my-1">
+								<div class="row mt-4 mb-5">
+									<div class="d-grid col-md-6 my-2">
+
+
+
+										<a th:href="@{/public/google-login}"
+											class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1 ">
+											<div class="d-flex flex-wrap justify-content-center">
+												<iconify-icon icon="ion:logo-google" class="signup-social-icon me-2 twchar"></iconify-icon>
+												<p class="mb-0">Google</p>
+											</div>
+										</a>
+
+
+
+
+									</div>
+
+								</div>
+
+
+								<p class="mb-0 twchar">用帳號註冊&nbsp;&nbsp;<span class="required-text twchar">*為必填</span>
+
+								</p>
+								<hr class="my-1">
+
+								<form id="registrationform" class="form-group flex-wrap" th:action="@{/public/register}" method="POST"
+									enctype="multipart/form-data">
+									<div class="form-input col-lg-12 my-4">
+
+										<input type="file" id="memberImg" name="memberImg" class="form-control mb-3 p-4 twchar">
+										<!--  <img id="imagePreview" src="#" alt="圖片預覽" style="display:none; max-width: 200px; max-height: 200px;">-->
+										<input type="text" id="memberName" name="memberName" placeholder="請輸入姓名 *"
+											class="form-control mb-3 p-4 twchar" required>
+										<div id="memberNameError" class="error-message twchar"></div>
+
+										<input type="email" id="memberEmail" name="memberEmail" placeholder="請輸入您的電子信箱 *"
+											class="form-control mb-3 p-4" required>
+										<div id="memberEmailError" class="error-message twchar"></div>
+
+										<input type="password" id="memberPassword" placeholder="請輸入您的密碼 *" class="form-control mb-3 p-4"
+											aria-describedby="passwordHelpBlock" name="memberPassword" required>
+										<div id="memberPasswordError" class="error-message twchar"></div>
+
+										<input type="text" class="form-control mb-3 p-4 twchar" id="memberAge" name="memberAge"
+											placeholder="請輸入您的生日 *" onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'">
+										<div id="memberAgeError" class="error-message twchar"></div>
+										<input type="tel" placeholder="請輸入您的電話 *" class="form-control mb-3 p-4" name="memberPhone"
+											id="memberPhone" required>
+										<div id="memberPhoneError" class="error-message twchar"></div>
+
+										<div class="form-group">
+											<label class="input-group-text twchar" for="userArea">您居住的區域</label>
+											<select class="twchar mb-3" name="memberAddress" id="location" required>
+												<option class="twchar mb-3" value="">請選擇縣市及區域 *</option>
+											</select>
+										</div>
+										<div id="memberAddressError" class="error-message twchar"></div>
+
+										<div class="g-recaptcha mb-3" th:data-sitekey="${@recaptchaConfig.siteKey}"
+											data-callback="thecallback"></div>
+										<input type="hidden" id="recaptchaResponse" name="recaptchaResponse" />
+
+
+
+										<div class="d-grid my-3">
+											<input id="registerButton" class="btn btn-dark btn-lg rounded-1 twchar" type="button" value="註冊">
+
+										</div>
+									</div>
+								</form>
+								<button id="oneClickFill" class="btn btn-primary twchar">會員一鍵填寫</button>
+								<button id="memberClear" class="btn btn-primary twchar">資料清除</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<div th:if="${alertLogin=='failure'}">
+		<input type="hidden" class="failure">
+	</div>
+
+	<div th:if="${alert=='alreadyRegistered'}">
+		<input type="hidden" class="alreadyRegistered">
+	</div>
+
+	<div th:replace="~{layout/footer}"></div>
+
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+	<script>
+		document.addEventListener('DOMContentLoaded', (event) => {
+			const today = new Date().toISOString().split('T')[0];
+			document.getElementById('memberAge').setAttribute('max', today);
+		});
+
+		document.addEventListener("DOMContentLoaded", function () {
+			document.querySelectorAll("option, optgroup").forEach(function (element) {
+				element.classList.add("twchar");
+			});
+		});
+
+
+		let login = document.querySelectorAll('.failure');
+		if (login.length > 0) {
+			Swal.fire({
+				title: '失敗',
+				text: '登入失敗，請檢查您的電子信箱和密碼。',
+				icon: 'error',
+				confirmButtonText: '確定'
+			});
+		}
+
+		let registered = document.querySelectorAll('.alreadyRegistered');
+		if (registered.length > 0) {
+			Swal.fire({
+				title: '失敗',
+				text: '電子信箱已被註冊',
+				icon: 'error',
+				confirmButtonText: '確定'
+			});
+		}
+
+		const locationData = {
+			"基隆市": ["仁愛區", "信義區", "中正區", "中山區", "安樂區", "暖暖區", "七堵區"],
+			"台北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"],
+			"新北市": ["板橋區", "新莊區", "中和區", "永和區", "土城區", "樹林區", "三峽區", "鶯歌區", "三重區", "蘆洲區", "五股區", "泰山區", "林口區", "八里區", "淡水區", "三芝區", "石門區", "金山區", "萬里區", "汐止區", "瑞芳區", "貢寮區", "平溪區", "雙溪區", "新店區", "深坑區", "石碇區", "坪林區", "烏來區"],
+			"桃園市": ["桃園區", "中壢區", "平鎮區", "八德區", "楊梅區", "蘆竹區", "大溪區", "龍潭區", "龜山區", "大園區", "觀音區", "新屋區", "復興區"],
+			"新竹市": ["東區", "北區", "香山區"],
+			"新竹縣": ["竹北市", "竹東鎮", "新埔鎮", "關西鎮", "湖口鄉", "新豐鄉", "芎林鄉", "橫山鄉", "北埔鄉", "寶山鄉", "峨眉鄉", "尖石鄉", "五峰鄉"],
+			"宜蘭縣": ["宜蘭市", "羅東鎮", "蘇澳鎮", "頭城鎮", "礁溪鄉", "壯圍鄉", "員山鄉", "冬山鄉", "五結鄉", "三星鄉", "大同鄉", "南澳鄉"],
+			"苗栗縣": ["苗栗市", "通霄鎮", "苑裡鎮", "竹南鎮", "頭份市", "後龍鎮", "卓蘭鎮", "大湖鄉", "公館鄉", "銅鑼鄉", "南庄鄉", "頭屋鄉", "三義鄉", "西湖鄉", "造橋鄉", "三灣鄉", "獅潭鄉", "泰安鄉"],
+			"台中市": ["中區", "東區", "南區", "西區", "北區", "北屯區", "西屯區", "南屯區", "太平區", "大里區", "霧峰區", "烏日區", "豐原區", "后里區", "石岡區", "東勢區", "和平區", "新社區", "潭子區", "大雅區", "神岡區", "大肚區", "沙鹿區", "龍井區", "梧棲區", "清水區", "大甲區", "外埔區", "大安區"],
+			"彰化縣": ["彰化市", "鹿港鎮", "和美鎮", "線西鄉", "伸港鄉", "福興鄉", "秀水鄉", "花壇鄉", "芬園鄉", "員林市", "溪湖鎮", "田中鎮", "大村鄉", "埔鹽鄉", "埔心鄉", "永靖鄉", "社頭鄉", "二水鄉", "北斗鎮", "二林鎮", "田尾鄉", "埤頭鄉", "溪州鄉", "竹塘鄉", "大城鄉", "芳苑鄉", "二林鎮", "埤頭鄉", "溪州鄉"],
+			"南投縣": ["南投市", "埔里鎮", "草屯鎮", "竹山鎮", "集集鎮", "名間鄉", "鹿谷鄉", "中寮鄉", "魚池鄉", "國姓鄉", "水里鄉", "信義鄉", "仁愛鄉"],
+			"雲林縣": ["斗六市", "斗南鎮", "虎尾鎮", "西螺鎮", "土庫鎮", "北港鎮", "莿桐鄉", "林內鄉", "古坑鄉", "大埤鄉", "崙背鄉", "二崙鄉", "麥寮鄉", "臺西鄉", "東勢鄉", "褒忠鄉", "四湖鄉", "口湖鄉", "水林鄉"],
+			"嘉義市": ["東區", "西區"],
+			"嘉義縣": ["太保市", "朴子市", "布袋鎮", "大林鎮", "民雄鄉", "溪口鄉", "新港鄉", "六腳鄉", "東石鄉", "義竹鄉", "鹿草鄉", "水上鄉", "中埔鄉", "竹崎鄉", "梅山鄉", "番路鄉", "大埔鄉", "阿里山鄉"],
+			"台南市": ["中西區", "東區", "南區", "北區", "安平區", "安南區", "永康區", "歸仁區", "新化區", "左鎮區", "玉井區", "楠西區", "南化區", "仁德區", "關廟區", "龍崎區", "官田區", "麻豆區", "佳里區", "西港區", "七股區", "將軍區", "學甲區", "北門區", "新營區", "後壁區", "白河區", "東山區", "六甲區", "下營區", "柳營區", "鹽水區", "善化區", "大內區", "山上區", "新市區", "安定區"],
+			"高雄市": ["新興區", "前金區", "苓雅區", "鹽埕區", "鼓山區", "旗津區", "前鎮區", "三民區", "楠梓區", "小港區", "左營區", "仁武區", "大社區", "岡山區", "路竹區", "阿蓮區", "田寮區", "燕巢區", "橋頭區", "梓官區", "彌陀區", "永安區", "湖內區", "鳳山區", "大寮區", "林園區", "鳥松區", "大樹區", "旗山區", "美濃區", "六龜區", "內門區", "杉林區", "甲仙區", "桃源區", "那瑪夏區", "茂林區", "茄萣區"],
+			"屏東縣": ["屏東市", "潮州鎮", "東港鎮", "恆春鎮", "萬丹鄉", "長治鄉", "麟洛鄉", "九如鄉", "里港鄉", "鹽埔鄉", "高樹鄉", "萬巒鄉", "內埔鄉", "竹田鄉", "新埤鄉", "枋寮鄉", "新園鄉", "崁頂鄉", "林邊鄉", "南州鄉", "佳冬鄉", "琉球鄉", "車城鄉", "滿州鄉", "枋山鄉", "霧台鄉", "瑪家鄉", "泰武鄉", "來義鄉", "春日鄉", "獅子鄉", "牡丹鄉", "三地門鄉"],
+			"台東縣": ["台東市", "成功鎮", "關山鎮", "卑南鄉", "鹿野鄉", "池上鄉", "東河鄉", "長濱鄉", "太麻里鄉", "大武鄉", "綠島鄉", "海端鄉", "延平鄉", "金峰鄉", "達仁鄉", "蘭嶼鄉"],
+			"花蓮縣": ["花蓮市", "鳳林鎮", "玉里鎮", "新城鄉", "吉安鄉", "壽豐鄉", "光復鄉", "豐濱鄉", "瑞穗鄉", "富里鄉", "秀林鄉", "萬榮鄉", "卓溪鄉"],
+			"澎湖縣": ["馬公市", "湖西鄉", "白沙鄉", "西嶼鄉", "望安鄉", "七美鄉"],
+			"金門縣": ["金城鎮", "金湖鎮", "金沙鎮", "金寧鄉", "烈嶼鄉", "烏坵鄉"],
+			"連江縣": ["南竿鄉", "北竿鄉", "莒光鄉", "東引鄉"]
+		};
+
+		const locationSelect = document.querySelector('#location');
+
+		// 初始化选项
+		for (const city in locationData) {
+			if (locationData.hasOwnProperty(city)) {
+				const districts = locationData[city];
+				districts.forEach(district => {
+					const option = document.createElement('option');
+					option.value = `${city}${district}`;
+					option.className = 'twchar'; // 添加 class
+					option.textContent = `${city}${district}`;
+					locationSelect.appendChild(option);
+				});
+			}
+		}
+
+		locationSelect.addEventListener('change', function () {
+			const selectedLocation = this.value;
+			console.log(`選擇的區域為：${selectedLocation}`);
+		});
+
+
+		$(document).ready(function () {
+			// 初始化時禁用註冊按鈕
+			$('#registerButton').prop('disabled', true);
+
+
+			// 使用 blur 事件進行驗證
+			$('#memberName').blur(validateName);
+			$('#memberEmail').blur(function () {
+				validateEmail().then(updateRegisterButtonState);
+			});
+			$('#memberPassword').blur(validatePassword);
+			$('#memberAge').blur(validateAge);
+			$('#memberPhone').blur(validatePhone);
+			$('#location').change(validateAddress);
+
+			// 表單提交驗證 
+			$('#registerButton').click(function (e) {
+				e.preventDefault(); // 防止表單直接提交
+				if (validateAll() && validateRecaptcha()) {
+					console.log('表單驗證成功');
+					$('#registrationform').submit()
+				} else if (!validateRecaptcha()) {
+					alert('請勾選 "我不是機器人"');
+				} else {
+					alert('請確保所有欄位都填寫正確');
+				}
+			});
+
+			function validateAll() {
+				var isValid = validateName() &&
+					validatePassword() &&
+					validateAge() &&
+					validatePhone() &&
+					validateAddress();
+
+
+				validateEmail().then(function (isEmailValid) {
+					isValid = isValid && isEmailValid;
+					updateRegisterButtonState();
+				});
+
+				return isValid;
+			}
+
+			let runcount = 0;
+
+			function wait() {
+				runcount += 1;
+				setTimeout(() => {
+					if (runcount <= 1) {
+						$('#memberNameError').text('');
+						$('#memberEmailError').text('');
+						$('#memberPasswordError').text('');
+						$('#memberAgeError').text('');
+						$('#memberPhoneError').text('');
+						$('#memberAddressError').text('');
+					}
+					runcount -= 1;
+				}, 3000);
+			}
+
+			async function validateName() {
+				var name = $('#memberName').val().trim();
+				if (name === '') {
+					$('#memberNameError').text('姓名不能為空');
+					await wait();
+					return false;
+				}
+				$('#memberNameError').text('');
+				return true;
+			}
+
+			async function validateEmail() {
+				var email = $('#memberEmail').val().trim();
+				if (email === '') {
+					$('#memberEmailError').text('電子信箱不能為空');
+					await wait();
+					return Promise.resolve(false);
+				}
+
+				return new Promise((resolve) => {
+					$.ajax({
+						url: '/comPETnion/public/check/email',
+						type: 'GET',
+						data: { memberEmail: email },
+						success: function (response) {
+							if (response.exists) {
+								$('#memberEmailError').text('此電子信箱已被使用');
+								resolve(false);
+							} else {
+								$('#memberEmailError').text('');
+								resolve(true);
+							}
+						},
+						error: function (xhr, status, error) {
+							$('#memberEmailError').text('驗證郵箱時發生錯誤');
+							console.error('Error checking email:', error);
+							resolve(false);
+						}
+					});
+				});
+			}
+
+			async function validatePassword() {
+				var password = $('#memberPassword').val();
+				var regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+				if (!regex.test(password)) {
+					$('#memberPasswordError').text('密碼必須包含大小寫字母和數字，且至少8個字符');
+					await wait();
+					return false;
+				}
+				$('#memberPasswordError').text('');
+				return true;
+			}
+
+			async function validateAge() {
+				var age = $('#memberAge').val().trim();
+				if (age === '') {
+					$('#memberAgeError').text('生日不能為空');
+					await wait();
+					return false;
+				}
+				$('#memberAgeError').text('');
+				return true;
+			}
+
+			async function validatePhone() {
+				var phone = $('#memberPhone').val().trim();
+				if (!/^\d{10}$/.test(phone)) {
+					$('#memberPhoneError').text('電話必須是10位數字');
+					await wait();
+					return false;
+				}
+				$('#memberPhoneError').text('');
+				return true;
+			}
+
+			async function validateAddress() {
+				var address = $('#location').val();
+				if (address === '') {
+					$('#memberAddressError').text('請選擇居住區域');
+					await wait();
+					return false;
+				}
+				$('#memberAddressError').text('');
+				return true;
+			}
+
+			function validateRecaptcha() {
+				var response = grecaptcha.getResponse();
+				return response.length !== 0;
+			}
+
+			function updateRegisterButtonState() {
+				var isNameValid = validateName;
+				var isPasswordValid = validatePassword;
+				var isAgeValid = validateAge;
+				var isPhoneValid = validatePhone;
+				var isAddressValid = validateAddress;
+				var isEmailValid = validateEmail;
+				var isRecaptchaValid = validateRecaptcha();
+
+
+				validateEmail().then(function name(isEmailValid) {
+
+					var isValid = isNameValid && isPasswordValid && isAgeValid &&
+						isPhoneValid && isAddressValid && isEmailValid && isRecaptchaValid;
+					$('#registerButton').prop('disabled', !isValid);
+				});
+
+			}
+
+			// 為每個輸入欄位添加 input 事件監聽器
+			$('#memberName, #memberPassword, #memberAge, #memberPhone, #location').on('input', function () {
+				updateRegisterButtonState();
+			});
+
+			$('#memberEmail').on('input', function () {
+				$('#memberEmailError').text(''); // 清除錯誤消息
+				updateRegisterButtonState();
+			});
+
+
+
+		});
+
+
+
+		$(document).ready(function () {
+			$("#oneClickFill").click(function () {
+				$("#memberName").val("王大力");
+				$("#memberEmail").val("wua8219@gmail.com");
+				$("#memberPassword").val("Aa123123");
+				$("#memberAge").val("1996-12-22");
+				$("#memberPhone").val("0909123123");
+				$("#location").val("台中市西屯區");
+
+			});
+
+			// 新增的一鍵清除功能
+			$("#memberClear").click(function () {
+				$("#memberName").val("");
+				$("#memberEmail").val("");
+				$("#memberPassword").val("");
+				$("#memberAge").val("");
+				$("#memberPhone").val("");
+				$("#location").val("");
+			});
+		});
+
+
+		$(document).ready(function () {
+			$("#memberClick").click(function () {
+				$("#exampleInputEmail1").val("wua8219@gmail.com");
+				$("#inputPassword1").val("Aa123123");
+			});
+		});
+
+		$(document).ready(function () {
+			$("#passwordclick").click(function () {
+				$("#exampleInputEmail1").val("wua8219@gmail.com");
+				$("#inputPassword1").val("Aa456456");
+			});
+		});
+
+		$(document).ready(function () {
+			$("#nav-register-tab").click(function () {
+				$('#exampleInputEmail1').val('');
+				$('#inputPassword1').val('');
+
+			});
+
+		});
+
+	
+
+
+	</script>
+
+
+</body>
+
+</html>

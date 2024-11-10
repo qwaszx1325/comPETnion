@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <title>客服中心</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            background-color: #f8f9fa;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+            flex: 1;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .chat-wrapper {
+            display: flex;
+            width: 800px;
+            height: 600px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            background-color: #fff;
+        }
+        #user-list {
+            width: 25%;
+            border-right: 1px solid #ccc;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .user-row {
+            border-bottom: 1px solid #ccc;
+        }
+        .user-cell {
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .user-cell span {
+            margin-right: 10px;
+        }
+        #chat-window {
+            width: 75%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            height: 100%;
+        }
+        #chat-header {
+            padding: 10px;
+            border: 1px solid #ccc;
+            background: #f4f4f4;
+            font-size: 18px;
+            text-align: center;
+        }
+        #chat-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        #chat-input {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background: #f4f4f4;
+        }
+        #chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        #chat-input button {
+            padding: 10px 20px;
+            border: none;
+            background: #6f4e37;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #chat-input button:hover {
+            background: #5a3d2b;
+        }
+        .chat-message {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 15px;
+            position: relative;
+            max-width: 60%;
+            word-wrap: break-word;
+            background: #e9ecef;
+        }
+        .chat-message-time {
+            font-size: 0.75em;
+            color: #666;
+            display: block;
+            margin-top: 5px;
+        }
+        .my-message {
+            align-self: flex-end;
+            background: #c8e6c9;
+        }
+        .other-message {
+            align-self: flex-start;
+            background: #f1f1f1;
+        }
+        @keyframes highlightNew {
+            0% { background-color: #ffff99; }
+            50% { background-color: #ffff99; }
+            100% { background-color: #f9f9f9; }
+        }
+        .new-user-alert {
+            animation: highlightNew 2s ease-in-out;
+        }
+        .notification-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #ff0000;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="layoutSidenav">
+        <div th:replace="~{layout/dashboard}"></div>
+        <div id="layoutSidenav_content">
+            <main>
+                <div class="container">
+                    <div class="chat-wrapper">
+                        <div class="sidebar" id="user-list">
+                            <table class="user-table">
+                                <tbody>
+                                    <tr th:each="user : ${userList}" th:data-user-id="${user.userId}" th:data-user-name="${user.userName}" class="user-row" onclick="loadChat(this)">
+                                        <td class="user-cell">
+                                            <span th:text="${user.userName}"></span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="chat-window">
+                            <div id="chat-header" data-current-chat-user-id="" data-current-chat-user-name="">選擇用戶開始談話</div>
+                            <div id="chat-messages"></div>
+                            <div id="chat-input">
+                                <input type="text" id="messageContent" placeholder="輸入消息">
+                                <button id="sendButton">發送</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const memberId = "admin"; // 動態獲取當前用戶ID
+        const memberName = "admin"; // 動態獲取當前用戶名稱
+        let stompClient = null;
+        let subscription = null;
+
+        function connect() {
+            const socket = new SockJS('/comPETnion/ws');
+            stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, function(frame) {
+                console.log('Connected: ' + frame);
+                subscribeToUserMessages();
+            });
+        }
+
+        function subscribeToUserMessages() {
+            if (subscription) {
+                subscription.unsubscribe();
+            }
+
+            subscription = stompClient.subscribe('/comPETnion/topic/customer-service/messages/' + memberId, function(message) {
+                const parsedMessage = JSON.parse(message.body);
+                showMessage(parsedMessage);
+                updateUserList(parsedMessage.senderId, parsedMessage.senderName);
+            });
+        }
+
+        function loadChat(userElement) {
+            const userId = userElement.getAttribute('data-user-id');
+            const userName = userElement.getAttribute('data-user-name');
+            const chatHeader = document.getElementById('chat-header');
+            chatHeader.textContent = '與 ' + userName + ' 的對話';
+            chatHeader.setAttribute('data-current-chat-user-id', userId);
+            chatHeader.setAttribute('data-current-chat-user-name', userName);
+            document.getElementById('chat-messages').innerHTML = '';
+
+            // 移除所有用戶的高亮效果和通知點
+            const allUserRows = document.querySelectorAll('.user-row');
+            allUserRows.forEach(row => {
+                row.classList.remove('new-user-alert');
+                const notificationIcon = row.querySelector('.fa-circle');
+                if (notificationIcon) {
+                    notificationIcon.remove();  // 移除紅色通知圖標
+                }
+            });
+
+            // 為選中的用戶添加高亮效果
+            userElement.classList.add('new-user-alert');
+
+            axios.get('/comPETnion/api/chat-history', {
+                params: {
+                    senderId: memberId,
+                    recipientId: userId
+                }
+            })
+            .then(function(response) {
+                response.data.forEach(showMessage);
+            })
+            .catch(function(error) {
+                console.error("獲取聊天記錄時出錯", error);
+            });
+        }
+
+        function updateUserList(userId, userName) {
+            const userList = document.getElementById('user-list');
+            const userTable = userList.querySelector('.user-table tbody');
+
+            // 檢查用戶是否已經在列表中
+            let userRow = userTable.querySelector(`tr[data-user-id="${userId}"]`);
+            let isNewUser = false;
+
+            if (memberId !== userId) {
+                if (!userRow) {
+                    // 如果用戶不在列表中，創建新的用戶行
+                    isNewUser = true;
+                    userRow = document.createElement('tr');
+                    userRow.className = 'user-row';
+                    userRow.setAttribute('data-user-id', userId);
+                    userRow.setAttribute('data-user-name', userName);
+                    userRow.setAttribute('onclick', 'loadChat(this)');
+
+                    const userCell = document.createElement('td');
+                    userCell.className = 'user-cell';
+
+                    // 添加用戶名到單元格
+                    const userNameSpan = document.createElement('span');
+                    userNameSpan.textContent = userName || '未知用戶';  // 如果userName為空，顯示"未知用戶"
+                    userCell.appendChild(userNameSpan);
+
+                    userRow.appendChild(userCell);
+                }
+
+                // 將用戶行添加到表格的最上方
+                userTable.insertBefore(userRow, userTable.firstChild);
+
+                // 處理通知圖標
+                const existingIcon = userRow.querySelector('.fa-circle');
+                if (!existingIcon) {
+                    const notificationIcon = document.createElement('i');
+                    notificationIcon.className = 'fas fa-circle';
+                    notificationIcon.style.color = 'red'; // 設置圖標顏色為紅色
+                    userRow.children[0].insertBefore(notificationIcon, userRow.children[0].firstChild);  // 添加到用戶名前
+                }
+
+                // 高亮新用戶或有新消息的用戶
+                userRow.classList.add('new-user-alert');
+                if (isNewUser) {
+                    setTimeout(() => {
+                        userRow.classList.remove('new-user-alert');
+                    }, 2000);  // 高亮持續2秒
+                }
+            }
+        }
+
+        function showMessage(message) {
+            const messagesDiv = document.getElementById('chat-messages');
+            const chatHeader = document.getElementById('chat-header');
+            const currentChatUserId = chatHeader.getAttribute('data-current-chat-user-id');
+            const messageElement = document.createElement('div');
+            const messageTime = document.createElement('div');
+
+            messageElement.className = 'chat-message';
+            messageTime.className = 'chat-message-time';
+            messageTime.textContent = new Date(message.timestamp).toLocaleString();
+
+            messageElement.appendChild(messageTime);
+
+            // 檢查消息是否屬於當前對話
+            if (message.senderId === memberId || message.senderId === currentChatUserId) {
+                if (message.senderId === memberId) {
+                    messageElement.classList.add('my-message');
+                    messageElement.innerHTML += message.content;
+                } else {
+                    messageElement.classList.add('other-message');
+                    messageElement.innerHTML += message.senderName + ": " + message.content;
+                }
+
+                messagesDiv.appendChild(messageElement);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        }
+
+        function sendMessage() {
+            const chatHeader = document.getElementById('chat-header');
+            const currentChatUserId = chatHeader.getAttribute('data-current-chat-user-id');
+            const currentChatUserName = chatHeader.getAttribute('data-current-chat-user-name');
+            if (!currentChatUserId) {
+                alert('請先選擇一個用戶進行聊天');
+                return;
+            }
+
+            const content = document.getElementById('messageContent').value;
+            if (!content) {
+                alert('消息內容不能為空');
+                return;
+            }
+
+            const chatMessage = {
+                senderId: memberId,
+                senderName: memberName,
+                recipientId: currentChatUserId,
+                recipientName: currentChatUserName,
+                content: content,
+                timestamp: new Date()
+            };
+
+            stompClient.send("/comPETnion/app/customer-service/chat", {}, JSON.stringify(chatMessage));
+            document.getElementById('messageContent').value = '';
+        }
+
+        document.getElementById('sendButton').addEventListener('click', sendMessage);
+
+        connect();
+    </script>
+</body>
+</html>

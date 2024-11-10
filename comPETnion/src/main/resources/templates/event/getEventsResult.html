@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/">
+
+<head>
+	<meta charset="UTF-8">
+	<title>活動搜尋結果</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+		integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+		crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<style>
+		article {
+			border: 2px solid #fdf6f0;
+			background-color: #fdf6f0;
+			width: 40%;
+			margin: 20px auto;
+			padding: 10px;
+			box-sizing: border-box;
+		}
+
+		.total {
+			margin: 50px;
+			text-align: center;
+		}
+
+
+		img {
+			width: 100%;
+		}
+
+		.date {
+			color: #000093;
+			opacity: .5;
+		}
+
+		#event {
+			background-color: #FFF8D7;
+			color: #484891;
+		}
+
+		button {
+			border: none;
+			outline: none;
+		}
+	</style>
+</head>
+
+<body class="twchar">
+	<div th:replace="~{layout/header}"></div>
+	<div th:replace="~{event/eventFrontSidebar}"></div>
+	<div class="wrapper">
+
+		<section>
+			<div class="total">
+				<h3 class="total twchar">共查詢到<span th:text="${eventBeans.size()}"></span>筆活動資料</h3>
+			</div>
+
+			<th:block th:each="eventBean : ${eventBeans}">
+
+				<div>
+					<article>
+						<figure>
+							<a th:href="@{|/public/findEventById.controller?eventId=${eventBean.eventId}|}">
+								<img th:src="@{|/photos/download?eventId=${eventBean.eventId}|}" alt="">
+							</a>
+						</figure>
+						<a th:href="@{|/public/findEventById.controller?eventId=${eventBean.eventId}|}">
+							<h2 class="twchar" th:text="${eventBean.eventSubject}"></h2>
+						</a>
+						<p>
+							<span class="date">Update: </span>
+							<span class="date" id="update"
+								th:text="${#dates.format(eventBean.updateDate, 'yyyy-MM-dd')}"></span>
+						</p>
+						<p th:text="${eventBean.eventContent}"></p>
+
+					</article>
+				</div>
+			</th:block>
+		</section>
+
+
+	</div>
+	<div th:replace="~{layout/footer}"></div>
+	<script>
+		function insertEvent() {
+			window.location.href = "insertPage";
+		}
+	</script>
+</body>
+
+</html>

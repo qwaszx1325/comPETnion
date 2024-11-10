@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<title>會員統計圖表</title>
+
+<style>
+.charts-container {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 20px;
+}
+
+.chart-wrapper {
+	width: 48%;
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+	<div id="layoutSidenav">
+		<div th:replace="~{layout/dashboard}"></div>
+		<div id="layoutSidenav_content">
+
+			<div class="container">
+				<div class="charts-container">
+					<!-- 地址分布圖表 -->
+					<div class="chart-wrapper">
+						<h4 style="text-align: center;">會員地區分布</h4>
+						<input type="hidden" id="addressesData" th:value="${addresses}">
+						<input type="hidden" id="addressCountsData" th:value="${counts}">
+						<canvas id="addressChart"></canvas>
+					</div>
+
+					<!-- 年齡分布圖表 -->
+					<!-- 隱藏的輸入框，用於存儲後端傳來的數據 -->
+					<div class="chart-wrapper">
+						<h4 style="text-align: center;">會員年齡分布</h4>
+						<input type="hidden" id="ageGroupsData" th:value="${ageGroups}">
+						<input type="hidden" id="ageCountsData" th:value="${ageCounts}">
+						<!-- 畫布元素，用於繪製圖表 -->
+						<canvas id="ageChart"></canvas>
+
+						<!--  <canvas id="myChart" width="400" height="200"></canvas>-->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script th:inline="javascript">
+
+         document.addEventListener('DOMContentLoaded', function () {
+        // 地址分布圖表
+        var addressesJson = document.getElementById('addressesData').value;
+        var addressCountsJson = document.getElementById('addressCountsData').value;
+
+        var addresses = JSON.parse(addressesJson);
+        var addressCounts = JSON.parse(addressCountsJson);
+        addressCounts.push(0);
+        var ctxAddress = document.getElementById('addressChart').getContext('2d');
+        new Chart(ctxAddress, {
+            type: 'line',
+            data: {
+                labels: addresses,
+                datasets: [{
+                    label: '會員地區分布數量',
+                    data: addressCounts,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '會員地區分布數量'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '地址'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 年齡分布圖表
+        var ageGroupsJson = document.getElementById('ageGroupsData').value;
+        var ageCountsJson = document.getElementById('ageCountsData').value;
+
+        var ageGroups = JSON.parse(ageGroupsJson);
+        var ageCounts = JSON.parse(ageCountsJson);
+        ageCounts.push(0);
+        
+         var ageOrder = [
+        "18歲以下", "18-29歲", "30-39歲", "40-49歲", "50-59歲", "60歲以上"
+    ];
+      // 根據定義的順序排序數據
+    var sortedData = ageOrder.map(group => {
+        var index = ageGroups.indexOf(group);
+        return {
+            group: group,
+            count: index !== -1 ? ageCounts[index] : 0
+        };
+    });
+
+    // 分離排序後的數據
+    ageGroups = sortedData.map(item => item.group);
+    ageCounts = sortedData.map(item => item.count);
+    
+    
+        var ctxAge = document.getElementById('ageChart').getContext('2d');
+        new Chart(ctxAge, {
+            type: 'bar',
+            data: {
+                labels: ageGroups,
+                datasets: [{
+                    label: '會員年齡分布',
+                    data: ageCounts,
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        
+                        title: {
+                            display: true,
+                            text: '會員數量'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '年齡組'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '會員年齡分佈'
+                    }
+                }
+            }
+        });
+    });
+   
+
+    </script>
+</body>
+
+</html>

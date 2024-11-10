@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+	<title>寵物領養頁面</title>
+	<style>
+		.twchar {
+			font-family: "Chilanka", "TaiwanPearl-Regular", 'Taipei Sans TC', 'Taipei Sans TW';
+			font-optical-sizing: auto;
+			font-weight: 400;
+			font-style: normal;
+		}
+
+		@font-face {
+			font-family: TaiwanPearl-Regular;
+			src: url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff2) format("woff2"),
+				url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff) format("woff");
+		}
+
+		.adoption-container {
+			width: 70%;
+			float: right;
+			margin-top: 10px;
+		}
+
+		.search-results {
+			width: 70%;
+			float: right;
+		}
+
+		.card {
+			border-radius: 20px;
+			overflow: hidden;
+			border: none;
+			box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+			background-color: #fff;
+			transition: all 0.3s ease;
+			margin-bottom: 30px;
+		}
+
+		.card:hover {
+			transform: translateY(-10px);
+			box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+		}
+
+		.card img {
+			object-fit: cover;
+			height: 250px;
+		}
+
+		.card-title {
+			font-size: 1.4rem;
+			color: #4e342e;
+			font-weight: bold;
+		}
+
+		.card-text {
+			font-size: 1rem;
+			line-height: 1.6;
+			color: #6d4c41;
+		}
+
+		.publish-container {
+			width: 25%;
+			margin-top: 10px;
+			float: left;
+			text-align: center;
+		}
+
+		.publish-btn {
+			display: inline-block;
+			background-color: #fee9dd;
+			color: #ba7340;
+			text-decoration: none;
+			padding: 10px 20px;
+			border-radius: 10px;
+			font-size: 1rem;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+			border: 2px solid #bb9275;
+			margin-bottom: 30px;
+		}
+
+		.publish-btn:hover {
+			background-color: #b88f72;
+			color: #f5e5d3;
+			box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+			transform: translateY(-2px);
+		}
+
+		.publish-btn:active {
+			transform: translateY(0);
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		}
+
+		.publish-btn i {
+			margin-right: 8px;
+		}
+
+		.search-container {
+			width: 25%;
+			float: left;
+			clear: left;
+			background-color: #fdf6f0;
+			padding: 30px;
+			border-radius: 20px;
+			box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+		}
+
+		.search-container form {
+			display: flex;
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		.search-container button {
+			width: 40%;
+			margin-top: 20px;
+			background-color: #8b4513;
+			border: none;
+			color: #fff;
+			transition: all 0.3s ease;
+			padding: 10px;
+			font-size: 1.1rem;
+			border-radius: 25px;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+			cursor: pointer;
+			display: block;
+			margin: 20px auto 0;
+		}
+
+		.search-btn:hover {
+			background-color: #a0522d;
+			box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+		}
+
+		.search-btn:active {
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		}
+
+		.btn-outline-secondary {
+			color: #795548;
+			border-color: #795548;
+			transition: all 0.3s ease;
+			width: 254px;
+		}
+
+		.btn-outline-secondary:hover {
+			background-color: #795548;
+			color: #fff;
+		}
+
+		.form-label {
+			color: #4e342e;
+			font-weight: bold;
+		}
+
+		.form-select {
+			color: #5d4037;
+			border-color: #bcaaa4;
+		}
+
+		h2 {
+			color: #4e342e;
+			font-size: 2.5rem;
+			margin-bottom: 30px;
+			text-align: center;
+		}
+
+		.swal2-popup,
+		.swal2-title {
+			font-family: "Chilanka" !important;
+		}
+	</style>
+</head>
+
+<body>
+	<div th:replace="~{layout/header}"></div>
+	
+	<div class="container mt-4 twchar">
+		<div class="publish-container twchar">
+			<a th:href="@{/member/adopt/addCase}" class="publish-btn" id="publishBtn">
+				<i class="fas fa-plus-circle"></i>
+				發布領養案件
+			</a>
+		</div>
+
+		<div th:fragment="searchResults" id="searchResults" class="adoption-container search-results">
+			<h2 class="text-center twchar" style="color: #8b4513;">領養案件</h2>
+			<div th:if="${not #lists.isEmpty(adoptions)}">
+				<!-- 如果有搜尋結果 -->
+				<div class="row twchar">
+					<div class="col-md-4" th:each="adoption : ${adoptions}">
+						<div class="card mb-4 shadow-sm">
+							<img th:src="@{/adopt/api/showPhoto(id=${adoption.petPhoto[0].id})}" class="card-img-top"
+								alt="pet photo">
+							<div class="card-body">
+								<h5 class="card-title twchar" th:text="${adoption.petName}"></h5>
+								<p class="card-text">
+									<strong>所在地:</strong> <span
+										th:text="${adoption.petCity}+' '+${adoption.petDistrict}"></span><br>
+									<strong>品種:</strong> <span
+										th:text="${adoption.petKind}+'-'+${adoption.petBreed}"></span><br>
+									<strong>性別:</strong> <span th:text="${adoption.petSex}"></span><br>
+									<strong>體型:</strong> <span th:text="${adoption.petBodyType}"></span><br>
+								</p>
+								<div>
+									<form th:action="@{/public/adopt/caseDetails}" method="get">
+										<input type="hidden" name="petCaseId" th:value="${adoption.petCaseId}">
+										<button type="submit" class="btn btn-sm btn-outline-secondary">查看詳細</button>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div th:if="${#lists.isEmpty(adoptions)}">
+				<!-- 如果沒有搜尋結果 -->
+				<div class="text-center">
+					<p>沒有找到符合條件的寵物。</p>
+				</div>
+			</div>
+		</div>
+
+
+		<!-- 搜尋欄位 -->
+		<div class="search-container">
+			<form id="searchForm" method="get">
+				<div class="mb-3">
+					<label for="petCity" class="form-label">請選擇縣市</label>
+					<select class="form-select" id="petCity" name="petCity">
+						<option value="">不限縣市</option>
+						<option value="基隆市">基隆市</option>
+						<option value="台北市">台北市</option>
+						<option value="新北市">新北市</option>
+						<option value="桃園市">桃園市</option>
+						<option value="新竹市">新竹市</option>
+						<option value="新竹縣">新竹縣</option>
+						<option value="宜蘭縣">宜蘭縣</option>
+						<option value="苗栗縣">苗栗縣</option>
+						<option value="台中市">台中市</option>
+						<option value="彰化縣">彰化縣</option>
+						<option value="南投縣">南投縣</option>
+						<option value="雲林縣">雲林縣</option>
+						<option value="嘉義市">嘉義市</option>
+						<option value="嘉義縣">嘉義縣</option>
+						<option value="台南市">台南市</option>
+						<option value="高雄市">高雄市</option>
+						<option value="屏東縣">屏東縣</option>
+						<option value="花蓮縣">花蓮縣</option>
+						<option value="台東縣">台東縣</option>
+						<option value="澎湖縣">澎湖縣</option>
+						<option value="金門縣">金門縣</option>
+						<option value="連江縣">連江縣</option>
+					</select>
+				</div>
+				<div class="mb-3">
+					<label for="petKind" class="form-label">請選擇種類</label>
+					<select class="form-select" id="petKind" name="petKind">
+						<option value="">不限種類</option>
+						<option value="貓咪">貓咪</option>
+						<option value="狗狗">狗狗</option>
+					</select>
+				</div>
+				<div class="mb-3">
+					<label for="petBodyType" class="form-label">請選擇體型</label>
+					<select class="form-select" id="petBodyType" name="petBodyType">
+						<option value="">不限體型</option>
+						<option value="小型">小型</option>
+						<option value="中型">中型</option>
+						<option value="大型">大型</option>
+					</select>
+				</div>
+				<button type="submit" class="search-btn">搜尋</button>
+			</form>
+		</div>
+
+		<div style="clear: both;"></div>
+	</div>
+	<div th:replace="~{layout/footer}"></div>
+
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+	<script>
+		const searchForm = document.querySelector('#searchForm');
+		searchForm.addEventListener('submit', function (e) {
+			e.preventDefault();
+
+			const formData = new FormData(this);
+			const petCity = formData.get('petCity');
+			const petKind = formData.get('petKind');
+			const petBodyType = formData.get('petBodyType');
+
+			const searchResults = document.querySelector('#searchResults');
+
+			axios.get('/comPETnion/public/adopt/searchResults', {
+				params: {
+					petCity: petCity,
+					petKind: petKind,
+					petBodyType: petBodyType
+				},
+			})
+				.then(function (response) {
+
+					if (!searchResults) {
+						console.error("searchResults element not found");
+						return;
+					}
+
+					// 創建一個臨時的 div 元素
+					const tempDiv = document.createElement('div');
+					tempDiv.innerHTML = response.data;
+
+					const newContent = tempDiv.firstElementChild; // 獲取新內容中的第一個元素
+					newContent.className = searchResults.className; // 確保新內容保留原有的 class
+					searchResults.parentNode.replaceChild(newContent, searchResults); // 替換舊的內容
+
+				})
+				.catch(function (err) {
+					console.error('搜尋出錯:', err);
+					if (searchResults) {
+						searchResults.innerHTML = `<h2 class="text-center" style="color: #8b4513;">領養案件</h2><div class="text-center"><p>搜尋時發生錯誤，請稍後再試。</p></div>`;
+					}
+				});
+		});
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>會員中心-討論區</title>
+
+    <!-- Include DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
+
+    <style>
+        .table-container {
+            width: 33.33%;
+            /* 表格占屏幕的1/3 */
+        }
+
+        .sidebar {
+            width: 200px;
+            /* 侧边栏宽度 */
+            margin-right: 20px;
+            /* 侧边栏与表格之间的间距 */
+        }
+
+        td img {
+            width: 50px;
+        }
+
+        td a {
+            color: inherit;
+        }
+
+        th {
+            background-color: RGB(82, 40, 26);
+            color: RGB(241, 237, 233);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        th:hover {
+            background-color: RGB(223, 207, 185);
+            color: RGB(82, 40, 26);
+        }
+
+        tbody tr:hover {
+            background-color: #876d5a;
+            color: RGB(82, 40, 26);
+        }
+
+        .button-icon {
+            background-color: transparent;
+            border: none;
+            transition: color 0.3s;
+        }
+
+        .button-icon:hover {
+            color: RGB(199, 171, 133);
+        }
+
+        @font-face {
+            font-family: TaiwanPearl-Regular;
+            src: url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff2) format("woff2"),
+                url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff) format("woff");
+        }
+
+        .twchar {
+            font-family: "Chilanka", 'Taipei Sans TC', 'Taipei Sans TW', sans-serif;
+            font-optical-sizing: auto;
+            font-weight: weight;
+            font-style: normal;
+        }
+
+        th,
+        td {
+            min-width: 100px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container twchar" style="width: 75% ;  padding: 30px; max-width: 1500px; margin-left: 350px;">
+        <div th:replace="~{layout/dashboard}" class="twchar"></div>
+        <form method="post" th:action="@{/admin/findAllReport}">
+            <table id="myTable" class="display cell-border stripe nowrap twchar" style="width: 100%">
+                <thead>
+                    <tr>
+                     <th style="width: 20px;">檢舉人</th>
+                        <th style="width: 20px;">文章名稱</th>
+                        <th>檢舉內容</th>
+                        <th style="width: 20px;">發佈日期</th>
+                        <th style="width: 20px;">檢舉狀態</th>
+                        <th style="width: 20px;">選擇狀態</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="report : ${arrayList}">
+                         <td th:text="${report.memberName}"></td>
+                        <td th:text="${report.postName}"></td>
+                        <td class="text-1 text-area" th:utext="${report.reportContent}"></td>
+                        <td th:text="${#dates.format(report.reportDate, 'yyyy年MM月dd日')}"></td>
+                        <td>
+                            <div class="form-check form-switch twchar">
+                                <span
+                                    th:text="${report.reportState == 0 ? '未處理' : (report.reportState == 1 ? '檢舉成功' : (report.reportState == 5 ? '已取消檢舉' : '檢舉不成立'))}"></span>
+                            </div>
+                        </td>
+                        <td style="width: auto;">
+                            <div>
+                                <select class="form-select report-status" th:data-report-id="${report.reportId}"
+                                    onchange="updateReportStatus(this);">
+                                    <option value="0" th:selected="${report.reportState == 0}">未處理</option>
+                                    <option value="1" th:selected="${report.reportState == 1}">檢舉成立</option>
+                                    <option value="2" th:selected="${report.reportState == 2}">檢舉不成立</option>
+                                </select>
+
+                            </div>
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+
+
+    <!-- Include jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <!-- Include DataTables JS -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#myTable').DataTable({
+                "language": {
+                    "processing": "處理中...",
+                    "loadingRecords": "載入中...",
+                    "paginate": {
+                        "first": "第一頁",
+                        "previous": "上一頁",
+                        "next": "下一頁",
+                        "last": "最後一頁"
+                    },
+                    "emptyTable": "目前沒有資料",
+                    "zeroRecords": "沒有符合的資料",
+                    "info": "顯示第 _START_ 至 _END_ 筆結果，共 _TOTAL_ 筆",
+                    "infoEmpty": "顯示第 0 至 0 筆結果，共 0 筆",
+                    "infoFiltered": "(從 _MAX_ 筆結果中篩選)",
+                    "search": "搜尋：",
+                    "searchPlaceholder": "請輸入關鍵字",
+                    "lengthMenu": "顯示 _MENU_ 筆結果",
+                    "loadingRecords": "載入中...",
+                    "processing": "處理中...",
+                    "aria": {
+                        "sortAscending": "：升冪排列",
+                        "sortDescending": "：降冪排列"
+                    }
+                },
+                responsive: true  // 確保響應式工作
+            });
+        });
+        function updateReportStatus(element) {
+            console.log('updateReportStatus 函數被調用');
+            var reportId = $(element).data('report-id');
+            var newStatus = parseInt($(element).val());
+            console.log('reportId:', reportId, 'newStatus:', newStatus);
+
+            if (!confirm('你確定要修改狀態嗎？')) {
+                return;
+            }
+
+            $.ajax({
+                method: 'POST',
+                url: '/comPETnion/admin/updateReportStatus',
+                data: {
+                    reportId: reportId,
+                    reportState: newStatus
+                },
+                dataType: 'json',
+                success: function (response) {
+                // 根据新状态更新对应的<span>元素内容
+                var statusText;
+                switch (newStatus) {
+                    case 0:
+                        statusText = '未處理';
+                        break;
+                    case 1:
+                        statusText = '檢舉成功';
+                        break;
+                    case 2:
+                        statusText = '檢舉不成立';
+                        break;
+                    default:
+                        statusText = '未知狀態';
+                }
+
+                // 找到当前行的<span>并更新内容
+                $(element).closest('tr').find('span').text(statusText);
+
+                alert('狀態已成功更新！');
+            },
+                error: function (xhr) {
+                    alert('狀態更新失敗：' + xhr.responseText);
+                }
+            });
+        }
+
+    </script>
+</body>
+
+</html>

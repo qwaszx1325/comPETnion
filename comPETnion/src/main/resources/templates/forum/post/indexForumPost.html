@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/">
+
+<head>
+    <meta charset="utf-8">
+    <title>文章首頁</title>
+
+    <style>
+    .blog-read img {
+        display: none;
+    }
+        .text-area {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            height: 150px;
+        }
+
+        .container {
+            margin-bottom: 20px;
+            padding: 0;
+            max-width: 100%;
+        }
+
+        .box {
+            width: 300px;
+            padding: 10px;
+            border: blue 2px solid;
+        }
+
+        .pagination {
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .footer {
+            margin-top: 100px;
+        }
+                    .twchar {
+  font-family: "Chilanka", 'Taipei Sans TC', 'Taipei Sans TW', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: weight;
+  font-style: normal;
+}
+   .img:hover {
+            transform: translateY(-5px);
+        }
+             .hover :hover {
+        background-color: RGB(223, 207, 185);
+        color: RGB(82, 40, 26);
+    }
+    </style>
+</head>
+
+<body>
+
+    <div th:replace="~{layout/header}"></div>
+
+
+ <section class="py-5 twchar">
+    <div class="container main " style="width: 75% ;  padding: 30px; max-width: 1500px; margin-left: 350px;">
+        <div th:replace="~{layout/navbarForum}"></div>
+        <div class="row">
+            <div th:each="oneMsg : ${page.content}" class="col-md-3 my-1" style="background-color: #fdf6f0;">
+                <div class="position-relative rounded-3 m-2 px-2 pt-1 bg-light img">
+                    <img style="width: 100%; height: 200px" th:src="@{/forum/showPhotos(postId=${oneMsg.postId})}" alt="cloth" class="img-fluid">
+                    <h3 class="secondary-font text-primary" th:text="${oneMsg.postName}"></h3>
+                    <div class="secondary-font text-primary" th:text="${#dates.format(oneMsg.postDate, 'yyyy年MM月dd日 ')}"></div>
+                    <hr>
+                    <div class="text-area">
+<span th:utext="${oneMsg.postContent}" class="blog-read text-area"></span>
+
+                    </div>
+                    <div>
+<a th:href="@{/{postId}/messages(postId=${oneMsg.postId})}" class="blog-read hover">閱讀更多...</a>                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+    <!-- Pagination -->
+    <div class="container twchar">
+        <ul class="pagination" th:if="${page.totalPages != 0}">
+            <!-- 上一頁 -->
+            <th:block th:switch="${page.number != 0}">
+                <li th:case="${true}" class="page-item"><a class="page-link" th:href="@{/post/page(p=${page.number})}">上一頁</a></li>
+                <li th:case="${false}" class="page-item disabled"><span class="page-link">上一頁</span></li>
+            </th:block>
+
+    <!-- 頁碼 -->
+        <th:block th:each="pageNumber : ${#numbers.sequence(1,page.totalPages)}">
+          <th:block th:switch="${page.number + 1 == pageNumber}">
+           <li th:case="${false}" class="page-item">
+             <a class="page-link" th:href="@{/post/page(p=${pageNumber})}" th:text="${pageNumber}"></a>
+           </li>
+           <li th:case="${true}" class="page-item active">
+             <span class="page-link" th:text="${pageNumber}"></span>
+           </li>
+           </th:block>
+        </th:block>
+
+            <!-- 下一頁 -->
+            <th:block th:switch="${page.number + 1 == page.totalPages}">
+                <li th:case="${false}" class="page-item"><a class="page-link" th:href="@{/post/page(p=${page.number + 2})}">下一頁</a></li>
+                <li th:case="${true}" class="page-item disabled"><span class="page-link">下一頁</span></li>
+            </th:block>
+        </ul>
+
+        <div th:text="'總共有 ' + ${page.totalElements} + ' 筆'"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer" th:replace="~{layout/footer}"></div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="js/jquery-1.11.0.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/Swiper/9.4.1/swiper-bundle.min.js"></script>
+    <script src="js/plugins.js"></script>
+    <script src="js/script.js"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+
+    <script>
+      
+                // 對超過長度的文字進行省略處理
+
+$(function(){
+    var len = 200;
+    $(".text-area").each(function(i){
+        if($(this).text().length>len){
+            $(this).attr("title",$(this).text());
+            var text=$(this).text().substring(0,len-1)+"...";
+            $(this).text(text);
+        }
+    });
+});
+
+
+
+
+
+    </script>
+</body>
+
+</html>

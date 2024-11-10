@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>訂單詳細信息</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+	rel="stylesheet">
+<link rel="icon" th:href="@{imgs/competion_icon.png}" type="image/png">
+<style>
+body {
+	font-family: Arial, sans-serif;
+}
+
+@font-face {
+	font-family: TaiwanPearl-Regular;
+	src:
+		url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff2)
+		format("woff2"),
+		url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff)
+		format("woff");
+}
+
+.twchar {
+	font-family: "Chilanka", "TaiwanPearl-Regular", 'Taipei Sans TC',
+		'Taipei Sans TW';
+	font-optical-sizing: auto;
+	font-weight: 400;
+	font-style: normal;
+}
+
+#ordersContainer {
+	width: 80%;
+	margin: 0 auto;
+	padding: 20px;
+	text-align: center;
+	position: relative;
+}
+
+.order-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 20px 0;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.order-table th, .order-table td {
+	padding: 12px 15px;
+	text-align: center;
+}
+
+.order-table thead {
+	background-color: #f4f4f4;
+	position: relative;
+}
+
+.order-table thead th {
+	font-weight: bold;
+	border-bottom: 2px solid #dddddd;
+}
+
+.order-table tbody tr {
+	border-bottom: 1px solid #dddddd;
+}
+
+.order-table tbody tr:nth-of-type(even) {
+	background-color: #f9f9f9;
+}
+
+.order-table tbody tr:last-of-type {
+	border-bottom: 2px solid #dddddd;
+}
+
+.order-table img {
+	max-width: 100px;
+}
+
+.form-group {
+	margin-bottom: 15px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.form-group label {
+	width: 100px;
+	margin-right: 10px;
+	font-weight: bold;
+	text-align: right;
+}
+
+.form-group input, .form-group select {
+	width: 50%;
+	padding: 10px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+}
+
+.coupon-input-group {
+	display: flex;
+	width: 50%;
+}
+
+.coupon-input-group input {
+	flex: 1;
+	padding: 10px;
+	border: 1px solid #ccc;
+	border-radius: 5px 0 0 5px;
+}
+
+.coupon-input-group button {
+	border-radius: 0 5px 5px 0;
+}
+
+.form-actions {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: 20px;
+}
+
+.submit-button {
+	background-color: #d4a373;
+	color: #fff;
+	padding: 10px 20px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 16px;
+}
+
+.submit-button:hover {
+	background-color: #b4885b;
+}
+
+.total-price {
+	font-size: 18px;
+	font-weight: bold;
+}
+
+.toggle-button {
+	background-color: transparent;
+	color: #d4a373;
+	padding: 0;
+	border: none;
+	cursor: pointer;
+	font-size: 24px;
+	position: absolute;
+	top: 10px;
+	left: 10px;
+}
+
+.toggle-button:hover {
+	color: #b4885b;
+}
+</style>
+</head>
+
+<body>
+	<div th:replace="~{layout/header}"></div>
+
+	<main id="main-content" style="padding-top: 20px;">
+		<!-- 居中內容 -->
+		<div id="ordersContainer" class="twchar">
+			<button class="toggle-button" onclick="toggleOrderDetails()">
+				<i class="fas fa-caret-down" id="toggle-icon"></i>
+			</button>
+			<h2 class="twchar">訂單詳細信息</h2>
+			<table class="order-table" id="order-details-table">
+				<thead>
+					<tr>
+						<th class="twchar">商品圖片</th>
+						<th class="twchar">商品標題</th>
+						<th class="twchar">數量</th>
+						<th class="twchar">總價</th>
+					</tr>
+				</thead>
+				<tbody id="order-items">
+					<tr th:each="item : ${orderDetails}">
+						<td><img
+							th:src="@{'/product/images?productId=' + ${item.productId} + '&type=main'}"
+							alt="商品圖片"></td>
+						<td class="twchar" th:text="${item.productTitle}"></td>
+						<td class="twchar" th:text="${item.quantity}"></td>
+						<td class="item-cost twchar" th:text="${item.cost} + '元'"></td>
+					</tr>
+				</tbody>
+			</table>
+			<h2 class="twchar">收件人資料</h2>
+			<form th:action="@{/ecpayCheckout}" method="post">
+				<div class="form-group">
+				        <button type="button" onclick="autofillForm()" class="btn btn-secondary twchar">一鍵輸入</button>
+				    </div>
+				<input type="hidden" name="orderId"
+					th:value="${orderDetails[0].orderId}"> <input type="hidden"
+					name="totalPrice" id="totalPriceInput">
+				<div class="form-group">
+					<label for="recipientName" class="twchar">收件人姓名</label> <input
+						type="text" id="recipientName" name="recipientName" class="twchar"
+						required>
+				</div>
+				<div class="form-group">
+					<label for="phone" class="twchar">電話</label> <input type="text"
+						id="phone" name="phone" class="twchar" required>
+				</div>
+				<div class="form-group">
+					<label for="address" class="twchar">地址</label> <input type="text"
+						id="address" name="address" class="twchar" required>
+				</div>
+				<div class="form-group">
+					<label for="email" class="twchar">電子郵件</label> <input type="email"
+						id="email" name="email" class="twchar" required>
+				</div>
+				<div class="form-group">
+					<label for="shippingMethod" class="twchar">選擇貨運方式</label> <select
+						id="shippingMethod" name="shippingCost" class="twchar" required
+						onchange="updateTotalPrice()">
+						<option value="" disabled selected class="twchar">請選擇貨運方式</option>
+						<option value="100" class="twchar">標準運輸 - 100元</option>
+						<option value="200" class="twchar">快捷運輸 - 200元</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="couponCode" class="twchar">使用優惠券</label>
+					<div class="coupon-input-group">
+						<input type="text" id="couponCode" name="couponCode" class="twchar"
+							readonly>
+						<button type="button" class="btn btn-primary"
+							data-bs-toggle="modal" data-bs-target="#couponModal"
+							onclick="loadCoupons()">選擇優惠券</button>
+					</div>
+				</div>
+				<div class="total-price twchar">
+					訂單總價：<span id="total-price"></span>元
+				</div>
+				<div class="form-actions">
+					<button type="submit" class="submit-button twchar">付款</button>
+				</div>
+			</form>
+		</div>
+	</main>
+
+	<div th:replace="~{layout/footer}"></div>
+
+	<!-- Modal for selecting coupon -->
+	<div class="modal fade" id="couponModal" tabindex="-1"
+		aria-labelledby="couponModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title twchar" id="couponModalLabel ">選擇優惠券</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<table class="table twchar">
+						<thead>
+							<tr>
+								<th>優惠券代碼</th>
+								<th>折扣</th>
+								<th>選擇</th>
+							</tr>
+						</thead>
+						<tbody class="twchar" id="couponTableBody">
+							<!-- 優惠券內容 -->
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+	<script src="/path/to/jquery-3.6.0.min.js"></script>
+	<script>
+		function autofillForm() {
+		    document.getElementById('email').value = 'petrecive@gmail.com';
+		    document.getElementById('recipientName').value = '王小明';
+		    document.getElementById('phone').value = '0908132007';
+		    document.getElementById('address').value = '桃園市新屋區望間里';
+			}
+	
+        let itemTotalPrice = 0;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            calculateItemTotalPrice();
+            updateTotalPrice();
+
+            function calculateItemTotalPrice() {
+                const itemCosts = document.querySelectorAll('.item-cost');
+
+                itemCosts.forEach(function (item) {
+                    let costText = item.textContent.replace('元', '').trim();
+                    let cost = parseFloat(costText);
+                    if (!isNaN(cost)) {
+                        itemTotalPrice += cost;
+                    }
+                });
+
+                document.getElementById('total-price').textContent = itemTotalPrice;
+                document.getElementById('totalPriceInput').value = itemTotalPrice;
+            }
+        });
+
+		function updateTotalPrice() {
+		    const shippingCost = parseFloat(document.getElementById('shippingMethod').value) || 0;
+		    const couponCode = document.getElementById('couponCode').value;
+		    let totalPrice = itemTotalPrice + shippingCost;
+
+		    if (couponCode) {
+		        const coupon = coupons.find(c => c.code === couponCode);
+		        if (coupon) {
+		            const discount = (totalPrice * coupon.discount) / 100;
+		            totalPrice -= discount;
+		        }
+		    }
+
+		    document.getElementById('total-price').textContent = Math.floor(totalPrice);
+		    document.getElementById('totalPriceInput').value = Math.floor(totalPrice);
+		}
+        
+        function toggleOrderDetails() {
+            const orderDetailsTable = document.getElementById('order-details-table');
+            const toggleIcon = document.getElementById('toggle-icon');
+            if (orderDetailsTable.style.display === 'none') {
+                orderDetailsTable.style.display = 'table';
+                toggleIcon.classList.remove('fa-caret-right');
+                toggleIcon.classList.add('fa-caret-down');
+            } else {
+                orderDetailsTable.style.display = 'none';
+                toggleIcon.classList.remove('fa-caret-down');
+                toggleIcon.classList.add('fa-caret-right');
+            }
+        }
+        
+        function selectCoupon(code) {
+            document.getElementById('couponCode').value = code;
+            updateTotalPrice();
+
+            // 使用jQuery隱藏模態框
+            $('#couponModal').modal('hide');
+
+            // 確保背景顏色恢復正常並移除模態框背景
+            $('.modal-backdrop').remove();
+             
+        }
+        
+        function loadCoupons() {
+			$.ajax({
+				url: '/comPETnion/coupons/coupons',
+				type: 'GET',
+				success: function (data) {
+					coupons = data; // 儲存優惠券資料
+					const couponTableBody = document.getElementById('couponTableBody');
+					couponTableBody.innerHTML = '';
+
+					coupons.forEach(function (coupon) {
+						const row = document.createElement('tr');
+
+						const codeCell = document.createElement('td');
+						codeCell.textContent = coupon.code;
+						row.appendChild(codeCell);
+
+						const discountCell = document.createElement('td');
+						discountCell.textContent = coupon.discount;
+						row.appendChild(discountCell);
+
+						const selectCell = document.createElement('td');
+						const selectButton = document.createElement('button');
+						selectButton.className = 'btn btn-success';
+						selectButton.textContent = '選擇';
+						selectButton.onclick = function () {
+							selectCoupon(coupon.code);
+						};
+						selectCell.appendChild(selectButton);
+						row.appendChild(selectCell);
+
+						couponTableBody.appendChild(row);
+					});
+				},
+				error: function () {
+					alert('無法加載優惠券，請稍後再試。');
+				}
+			});
+		}
+
+		// 監聽模態框隱藏事件，以確保背景恢復正常
+$('#couponModal').on('hidden.bs.modal', function () {
+
+    // 手動移除 overflow:hidden 樣式
+    document.body.style.overflow = 'auto';
+});
+		
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+   <meta charset="UTF-8">
+    <title>新增活動</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Chilanka&family=Montserrat:wght@300;400;500&display=swap"
+		rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css?family=Taipei+Sans+TC:300,400,500,700|Taipei+Sans+TW:300,400,500,700&display=swap">
+    <script>
+      async function init() {
+        await customElements.whenDefined('gmp-map');
+
+        const map = document.querySelector('gmp-map');
+        const marker = document.querySelector('gmp-advanced-marker');
+        const placePicker = document.querySelector('gmpx-place-picker');
+        const infowindow = new google.maps.InfoWindow();
+
+        map.innerMap.setOptions({
+          mapTypeControl: false
+        });
+
+        placePicker.addEventListener('gmpx-placechange', () => {
+          const place = placePicker.value;
+
+          if (!place.location) {
+            window.alert(
+              "No details available for input: '" + place.name + "'"
+            );
+            infowindow.close();
+            marker.position = null;
+            return;
+          }
+
+          if (place.viewport) {
+            map.innerMap.fitBounds(place.viewport);
+          } else {
+            map.center = place.location;
+            map.zoom = 17;
+          }
+
+          marker.position = place.location;
+          infowindow.setContent(
+            `<strong>${place.displayName}</strong><br>
+             <span>${place.formattedAddress}</span>
+          `);
+          infowindow.open(map.innerMap, marker);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', init);
+    </script>
+    <script type="module" src="https://unpkg.com/@googlemaps/extended-component-library@0.6">
+    </script>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      .place-picker-container {
+        padding: 20px;
+      }
+              #map {
+            width: 500px;
+            height: 500px;
+        }
+        legend {
+			color: rgb(136, 109, 92);
+			font-weight: bold;
+			font-size: 40px;
+			margin-left: 50px;
+		}
+
+		.box {
+			width: 550px;
+			border-bottom: 1px solid RGB(208, 185, 153);
+			margin: 20px;
+			padding-bottom: 10px;
+		}
+
+		.button {
+			width: 450px;
+			margin: 20px;
+			text-align: center;
+		}
+
+		.t1 {
+			width: 150px;
+			float: left;
+		}
+
+		#warning {
+			color: red;
+			display: none;
+		}
+
+		#dateWarning {
+			color: red;
+			display: none;
+		}
+
+		form {
+			font-family: "Chilanka", 'Taipei Sans TC', 'Taipei Sans TW', sans-serif;
+			font-optical-sizing: auto;
+			font-weight: weight;
+			font-style: normal;
+		}
+
+		.buttonCss {
+			display: inline-block;
+			padding: 5px 20px;
+			border-radius: 10px;
+			border: 2px solid #632726cb;
+			background-color: #dabea7;
+			color: #876d5a;
+			font-weight: bold;
+			transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+		}
+
+		.buttonCss:hover {
+			background-color: #632726cb;
+			border-color: #632726cb;
+			color: white;
+		}
+
+		.form_container {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+    </style>
+  </head>
+  <body>
+  <div th:replace="~{layout/header}"></div>
+  <div class="form_container mt-4">
+  <form method="post" th:action="@{/addEvent.controller}" enctype="multipart/form-data">
+  <fieldset>
+  <legend class="twchar">主題表單</legend>
+  				<div class="box">
+					<label for="eventSubject" class="t1 twchar">主題:</label><input type="text" id="eventSubject"
+						name="eventSubject" autofocus size="10" th:value="${eventSubject}" required>
+				</div>
+								<div>
+					<input type="hidden" name="memberId" id="memberId"
+						th:value="${session.member.memberId}"><!-- 設定連接到會員-->
+					<!--  	<input type="hidden" name="memberId" id="memberId" value="">-->
+				</div>
+								<div class="box">
+					<label for="eventContent" class="t1 twchar">內容:</label>
+					<textarea name="eventContent" id="eventContent" cols="40" rows="5" th:value="${eventContent}"
+						required></textarea>
+				</div>
+								<div class="box">
+					<label for="" class="t1 twchar">舉辦時間:</label>
+					<input type="datetime-local" name="eventDate" id="eventDate" value=""
+						th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm')}" required>
+				</div>
+								<div class="box">
+					<label for="eventPlace" class="t1 twchar">地點:</label><input type="text" id="eventPlace"
+						name="eventPlace" size="30" th:value="${eventPlace}" required>
+				
+    <gmpx-api-loader th:attr="key=${apiKey}, solution-channel='GMP_GE_mapsandplacesautocomplete_v1'">
+    </gmpx-api-loader>
+    <div id="map">
+    <gmp-map center="40.749933,-73.98633" zoom="13" map-id="DEMO_MAP_ID">
+      <div slot="control-block-start-inline-start" class="place-picker-container">
+        <gmpx-place-picker placeholder="Enter an address"></gmpx-place-picker>
+      </div>
+      <gmp-advanced-marker></gmp-advanced-marker>
+    </gmp-map>
+    </div>
+    </div>
+    				<div class="box">
+					<label for="" class="t1 twchar">人數限制:</label> <input type="text" name="numberOfParticipant"
+						maxlength="10" pattern="[0-9]*" id="numberOfParticipant" th:value="${numberOfParticipant}"
+						required><span id="warning">請輸入數字</span>
+				</div>
+				<div class="box">
+					<label for="" class="t1 twchar">報名截止日期:</label> <input type="date" name="closingDate"
+						id="closingDate" value="" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+						required><span id="dateWarning">報名截止日期不能晚於舉辦時間</span>
+				</div>
+				<div class="box">
+					<label for="" class="t1 twchar">圖片:</label> <input type="file" name="eventImg" id="eventImg"
+						accept=".jpg,.png,.webp" th:value="${eventImg}">
+				</div>
+				<div th:if="${error}" style="color: red;">
+					<p th:text="${error}"></p>
+				</div>
+    </fieldset>
+    <div class="button">
+				<input class="buttonCss" type="submit" value="送出">
+				<button class="buttonCss" type="button" onclick="history.back()">取消</button>
+			</div>
+    </form>
+    </div>
+    <div th:replace="~{layout/footer}"></div>
+  </body>
+</html>

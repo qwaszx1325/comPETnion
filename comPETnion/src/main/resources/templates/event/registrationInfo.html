@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/">
+
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${'報名資訊 - ' + event.eventSubject}">報名資訊</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chilanka&family=Montserrat:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Taipei+Sans+TC:300,400,500,700|Taipei+Sans+TW:300,400,500,700&display=swap">
+    <style>
+        .button {
+            width: 450px;
+            margin: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-left: 15px;
+            color: rgb(136, 109, 92);
+            font-weight: bold;
+            font-size: 40px;
+        }
+
+        .form_container {
+            width: 40%;
+            /* display: flex; */
+            justify-content: center;
+            align-items: center;
+            margin-left: 400px;
+            margin-top: 50px;
+        }
+
+        .box {
+            width: 200;
+            border-bottom: 1px solid RGB(208, 185, 153);
+            margin: 20px;
+            padding-bottom: 10px;
+        }
+
+        .button a,
+        .buttonCss {
+            background-color: RGB(82, 40, 26);
+            color: RGB(241, 237, 233);
+            transition: background-color 0.3s, color 0.3s;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+           
+        }
+
+        .button a{
+            padding: 12px 31px;
+        }
+        .button a:hover,
+        .buttonCss:hover {
+            background-color: RGB(223, 207, 185);
+            color: RGB(82, 40, 26);
+        }
+
+        .t1 {
+            width: 150px;
+            float: left;
+        }
+
+        @font-face {
+            font-family: TaiwanPearl-Regular;
+            src: url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff2) format("woff2"),
+                url(https://cdn.jsdelivr.net/gh/max32002/TaiwanPearl@2.125/webfont/TaiwanPearl-Regular.woff) format("woff");
+        }
+
+
+        .twchar {
+            font-family: "Chilanka", "TaiwanPearl-Regular", 'Taipei Sans TC', 'Taipei Sans TW';
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{layout/header}"></div>
+    <div th:replace="~{layout/memberSidebar}"></div>
+    <div class="form_container twchar">
+
+        <h1 class="twchar" th:text="${event.eventSubject + ' 報名表'}"></h1>
+
+        <div id="memberInput">
+            <p class="box">
+                <label class="t1" for="memberName">名字: </label>
+
+                <span id="memberName" type="text" name="memberName" required th:text="${participant.memberName}"></span>
+            </p>
+            <p class="box">
+                <label class="t1" for="phone">聯絡電話: </label>
+                <span id="phone" type="text" name="phone" required th:text="${participant.phone}"></span>
+            </p>
+            <p class="box">
+                <label class="t1" for="email">E-mail: </label>
+                <span id="email" type="text" name="email" required th:text="${participant.email}"></span>
+            </p>
+        </div>
+        <p class="box">
+            <label class="t1" for="pet">寵物描述: </label>
+            <span id="pet" name="pet" cols="22" rows="3" required th:text="${participant.pet}"></span>
+        </p>
+
+
+
+        <div class="button">
+            <a class="update_icon"
+                th:href="@{/member/updateRegistrationInfoForm(participantId=${participant.participantId})}">修改</a>
+            <button class="buttonCss" type="button" onclick="history.back()">回上一頁</button>
+        </div>
+    </div>
+    <div th:replace="~{layout/footer}"></div>
+
+</body>
+
+</html>

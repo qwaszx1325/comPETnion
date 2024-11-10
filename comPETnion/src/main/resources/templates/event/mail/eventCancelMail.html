@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>活動審核通過通知</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .header img {
+            max-width: 100px;
+            height: auto;
+        }
+
+        .content {
+            margin: 20px 0;
+        }
+
+        .content h1 {
+            color: #333333;
+        }
+
+        .content p {
+            line-height: 1.6;
+            color: #666666;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            color: #999999;
+            font-size: 12px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #876d5a;
+            color: white !important;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        strong {
+            font-weight: bolder;
+            font-size: large;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <img src="https://i.imgur.com/M34EE1U.png" alt="Company Logo">
+
+        <div class="content">
+            <h1>活動取消通知</h1>
+            <p>親愛的comPETnion會員，</p>
+            <p>非常遺憾地通知您，原定於 <strong th:text="${#dates.format(eventDate, 'yyyy-MM-dd HH:mm')}">
+            </strong> 舉辦的 <strong th:text="${eventSubject}"></strong> 活動，
+            因主辦者 <strong th:text="${hostMemberName}"></strong> 的決定，現已取消。</p>
+           
+            <p>給您帶來的不便我們深感抱歉。</p>
+            <p>如有任何疑問或需要進一步資訊，請隨時聯繫我們。</p>
+            <p>再次感謝您的理解與支持。</p>
+
+        </div>
+        <div class="footer">
+            <p>這是一封自動產生的郵件，請勿回覆。</p>
+            <p>© 2024 comPETnion .All rights reserved.</p>
+        </div>
+    </div>
+</body>
+
+</html>

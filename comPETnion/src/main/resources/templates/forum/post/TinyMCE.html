@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>新增文章</title>
+    <script th:src="@{/tinymce/js/tinymce/tinymce.min.js}"></script>
+    <script th:src="@{/tinymce/langs/zh_TW.js}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <style type="text/css">
+    
+    .button-container {
+    display: flex;
+    gap: 10px; /* 可選，設置按鈕之間的間距 */
+}
+
+.submit-btn {
+    flex: none; /* 確保按鈕不會拉伸 */
+}
+        .twchar {
+            font-family: "Chilanka", 'Taipei Sans TC', 'Taipei Sans TW', sans-serif;
+            font-optical-sizing: auto;
+            font-weight: weight;
+            font-style: normal;
+        }
+
+        .container {
+            width: 75%;
+            margin: 0 auto;
+        }
+
+        .form-wrapper {
+            background-color: #fff;
+            padding: 10px;
+            /* Adjusted padding to reduce space */
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 1);
+            margin: 20px 0;
+        }
+
+        .form-group {
+            margin-bottom: .5rem;
+            /* Reduced bottom margin */
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: .25rem;
+            /* Reduced bottom margin */
+            text-align: left;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: .25rem;
+            /* Reduced padding to fit content closer */
+            border: 1px solid #ccc;
+            border-radius: .25rem;
+            margin-top: .25rem;
+            /* Added margin-top for spacing */
+        }
+
+        .form-group textarea {
+            resize: vertical;
+        }
+
+        .submit-btn {
+            font-family: "Chilanka", 'Taipei Sans TC', 'Taipei Sans TW', sans-serif;
+            padding: .5rem 1rem;
+            border: none;
+            border-radius: .25rem;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            display: block;
+            margin: 1rem auto 0;
+            /* Center button and add margin on top */
+        }
+
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+         .postContent {
+        resize: none; /* 禁用手動調整大小 */
+    }
+    
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{layout/header}"></div>
+
+        <div th:replace="~{layout/navbarForum}"></div>
+    <!-- Navbar -->
+    <div class="container twchar" style="width: 75% ;  padding: 30px; max-width: 1500px; margin-left: 350px; ">
+        <br>
+        <h1 class="twchar" style="text-align: center;">新增文章</h1>
+        <div th:text="${insertError} ? ${insertError}" style="color: red;"></div>
+        <div th:text="${insertOK} ? ${insertOK}" style="color: green;"></div>
+
+        <br>
+        <div class="form-wrapper twchar" style="background-color: #fdf6f0;">
+            <form id="postForm" th:action="@{/member/post/publish}" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="postName">文章標題：</label>
+                    <input type="text" id="postName" name="postName" required>
+                </div>
+
+ <div class="form-group">
+                    <label for="files">選擇圖片封面：</label>
+                    <input type="file" id="files" name="files" multiple required>
+                </div>
+
+               
+
+
+                <div class="form-group">
+                    <label for="themeId" class="twchar">主題：</label>
+                    <select id="themeId" name="themeId" class="twchar" required>
+                        <option class="twchar" value="" disabled selected>請選擇</option>
+                        <!-- Iterate over 'arrayList' to populate options -->
+                        <option class="twchar" th:each="theme : ${arrayList}" th:value="${theme.themeId}"
+                            th:text="${theme.themeName}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="postContent">文章內容：</label>
+                    <textarea id="postContent" name="postContent"></textarea>
+                </div>
+                
+
+  <button type="button" class="submit-btn twchar" style="background-color: #876d5a; display: inline-block;" onclick="insertSampleText()">一鍵輸入</button>
+<button class="submit-btn twchar" type="submit" style="background-color: #876d5a; display: inline-block;">上傳</button>
+
+            </form>
+        </div>
+    </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js" integrity="sha512-bPh3uwgU5qEMipS/VOmRqynnMXGGSRv+72H/N260MQeXZIK4PG48401Bsby9Nq5P5fz7hy5UGNmC/W1Z51h2GQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+    tinymce.init({
+    selector: '#postContent',
+    height: 500,
+    plugins: [
+        'advlist', 'autolink', 'lists', 'image', 'charmap', 'preview',
+        'searchreplace', 'visualblocks', 'fullscreen', 'code',
+        'help', 'wordcount'
+    ],
+    toolbar: 'undo redo | blocks | ' +
+        'bold italic backcolor | alignleft aligncenter ' +
+        'alignright alignjustify | bullist numlist outdent indent | ',
+    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }',
+    language_url: '/static/langs/zh_TW.js',
+    language: 'zh_TW',
+    mobile: {
+        menubar: true,
+    },
+    file_picker_types: 'image',
+    images_upload_handler: function (blobInfo, progress) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function () {
+                const base64 = reader.result;
+                resolve(base64);
+            };
+            reader.onerror = function () {
+                reject('Could not read file');
+            };
+            reader.readAsDataURL(blobInfo.blob());
+        });
+    },
+    setup: function (editor) {
+        editor.on('submit', function (e) {
+            e.preventDefault();
+            editor.uploadImages().then(function () {
+                $('#postForm').submit();
+            });
+        });
+    },
+    resize: false // 禁用自動調整大小
+});
+
+
+        $(document).ready(function () {
+            $.ajax({
+                url: '/findAllThemeInPost', // 修改为你实际的后端接口路径
+                method: 'GET',
+                success: function (data) {
+                    data.forEach(function (theme) {
+                        $('#themeId').append('<option value="' + theme.themeId + '">' + theme.themeName + '</option>');
+                        console.log(data)
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching themes:', error);
+                }
+            });
+        });
+  
+      function insertSampleText() {
+   const sampleText = `
+<article class="twchar">
+  <h1 class="twchar">飼養狗狗前必知的事</h1>
+
+  <ol class="twchar">
+    <li class="twchar">
+      <h2 class="twchar">時間與精力的投入</h2>
+      <p>養狗需要大量的時間和精力。狗狗需要每天的運動、餵食、清理排泄物以及定期的梳理毛髮。特別是幼犬，更需要密切的照顧和訓練。如果你是一個工作繁忙的人，可能需要重新考慮是否有足夠的時間來照顧狗狗。</p>
+    </li>
+
+    <li class="twchar">
+      <h2 class="twchar">財務考量</h2>
+      <p>養狗的成本不僅僅是購買或領養費用，還包括狗糧、玩具、床墊、牽引繩、疫苗接種、定期健康檢查、緊急醫療費用、以及美容修剪等費用。確保你有足夠的財務能力來提供狗狗所需的一切。</p>
+    </li>
+
+    <li class="twchar">
+      <h2 class="twchar">狗的品種選擇</h2>
+      <p>不同品種的狗有不同的性格、活動需求和健康問題。選擇適合自己生活方式和家庭環境的狗種非常重要。例如，活潑好動的品種如邊境牧羊犬需要大量的運動，而拉布拉多犬則相對較為溫順，適合家庭養育。了解不同品種的特性，選擇最適合自己的狗狗。</p>
+    </li>
+
+    <li class="twchar">
+      <h2 class="twchar">環境準備</h2>
+      <p>確保你的家中有足夠的空間讓狗狗活動。要有一個安全、舒適的居住環境，包括適當的休息區和活動區。需要準備狗床、食盆、水盆、玩具、和狗廁所等必需品。同時，確保家中的電線、危險物品都收好，以防狗狗誤食或受傷。</p>
+    </li>
+
+    <li class="twchar">
+      <h2 class="twchar">健康照顧</h2>
+      <p>狗狗需要定期的健康檢查、疫苗接種和驅蟲處理。選擇一個信任的獸醫，並定期帶狗狗去檢查。要了解常見的狗病症狀，及時發現並處理狗狗的健康問題。此外，良好的飲食習慣對狗狗的健康至關重要，選擇優質的狗糧並遵循適當的餵食量。</p>
+    </li>
+
+    <li class="twchar">
+      <h2 class="twchar">訓練與社會化</h2>
+      <p>狗狗需要從小接受訓練和社會化，以培養良好的行為習慣和適應不同的環境。基本的訓練如坐下、過來、停下、上廁所等，對於狗狗和飼主的相處非常重要。社會化訓練讓狗狗學會如何與人和其他動物相處，減少不必要的恐懼和攻擊行為。</p>
+    </li>
+
+    <li class="twchar">
+      <h2 class="twchar">運動與娛樂</h2>
+      <p>狗狗每天需要一定的運動量來保持健康和快樂。根據不同品種的運動需求，安排適當的散步、奔跑、和遊戲時間。運動不僅可以消耗狗狗的精力，還能增進你們之間的感情。適當的玩具和遊戲可以刺激狗狗的智力和嗅覺，讓牠們更加活潑健康。</p>
+    </li>
+
+    <li class="twchar">
+      <h2 class="twchar">領養與購買</h2>
+      <p>如果你決定養狗，可以選擇從收容所領養或者從正規的繁殖者購買。領養不僅能給無家可歸的狗狗一個溫暖的家，還能減少流浪動物的數量。購買時，應選擇有良好口碑的繁殖者，確保狗狗的健康和良好的繁殖環境，避免購買來自不正當繁殖場的狗狗。</p>
+    </li>
+
+    <li class="twchar">
+      <h2 class="twchar">家庭的接納</h2>
+      <p>養狗需要全家人的共同努力和支持。確保所有家庭成員都同意並準備好接納新的成員。讓孩子了解如何正確對待和照顧狗狗，教導他們尊重和愛護動物。</p>
+    </li>
+
+    <li class="twchar">
+      <h2 class="twchar">預見長期承諾</h2>
+      <p>狗狗的壽命一般為10至15年，這是一個長期的承諾。在這段時間內，你需要為狗狗提供穩定的生活環境、充足的愛與關懷。確保自己能夠在這段時間內持續照顧牠，無論生活中發生什麼變化。</p>
+    </li>
+  </ol>
+
+ 
+</article>
+`;
+    tinymce.get('postContent').setContent(sampleText);
+      document.getElementById('postName').value = "飼養狗"; // 設置標題
+   
+}
+        
+    </script>
+</body>
+
+</html>

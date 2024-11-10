@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>案件統計圖表</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+        }
+
+        #chartContainer {
+            position: relative;
+            height: 600px;
+            width: 800px;
+            margin: auto;
+        }
+
+        #yearSelect {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="layoutSidenav">
+        <div th:replace="~{layout/dashboard}"></div>
+        <div id="layoutSidenav_content">
+            <main>
+                <div id="chartContainer">
+                    <select id="yearSelect"></select>
+                    <canvas id="caseChart"></canvas>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+        const yearSelect = document.getElementById('yearSelect');
+        const ctx = document.getElementById('caseChart').getContext('2d');
+        let chart;
+
+        // 填充年份選擇
+        const currentYear = new Date().getFullYear();
+        for (let year = currentYear; year >= currentYear - 5; year--) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+
+        yearSelect.addEventListener('change', fetchData);
+
+        function fetchData() {
+            const year = yearSelect.value;
+            fetch(`/comPETnion/adopt/api/statistics?year=${year}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => updateChart(data))
+                .catch(error => console.error('Error:', error));
+        }
+
+        function updateChart(data) {
+            const months = data.map(item => {
+                const [year, month] = item.month.split('-');
+                return `${year}-${month}`;
+            });
+            const totalCounts = data.map(item => item.totalCases);
+            const adoptedCounts = data.map(item => item.adopted);
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: '全部案件',
+                            data: totalCounts,
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                            borderColor: 'rgb(54, 162, 235)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: '已領養案件',
+                            data: adoptedCounts,
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                            borderColor: 'rgb(255, 99, 132)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '每月案件統計'
+                        }
+                    }
+                }
+            });
+        }
+
+        // 初始加載
+        fetchData();
+
+    </script>
+</body>
+
+</html>
