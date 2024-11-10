@@ -22,9 +22,10 @@
 
 ![訂單確認頁面](https://github.com/user-attachments/assets/4dda947f-e068-49d3-8f47-5368bb0c51d0)
 
+![訂單狀態更新](https://github.com/user-attachments/assets/75f4eaf4-6a81-4cb2-af6d-6a4f24cb0636)
+
 - 管理員可以在管理後台更改訂單狀態至「已完成」，並自動發送確認郵件到用戶的信箱。
 
-![訂單狀態更新](https://github.com/user-attachments/assets/75f4eaf4-6a81-4cb2-af6d-6a4f24cb0636)
 ![郵件通知](https://github.com/user-attachments/assets/9be19f1c-7f57-4503-bf46-968f14b0e901)
 
 - 訂單狀態為「已付款」或「已完成」的訂單會顯示在月消費圖表及單月消費金額統計中。
@@ -71,7 +72,7 @@
 ## 環境設置
 
 1. **配置文件**：在 `src/main/resources` 下新增 `application.properties`，並配置基本的 SQL Server 和 Spring Mail 設定。
-2. **資料庫設置**：由於本專案使用了 SQL Server 的視圖，若直接使用 Spring JPA 自動生成會遇到問題，請依照 `model/order` 中的表關係手動建立相應的 Entity 及表結構。
+2. **資料庫設置**：由於本專案使用了 SQL Server 的View，若直接使用 Spring JPA 自動生成會遇到問題，請依照 `model/order` 中的表關係手動建立相應的 Entity 及表結構。
    
 ---
 
